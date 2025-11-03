@@ -11,7 +11,17 @@ type UserInfoController struct {
 	UserInfoUsecase domain.UserInfoUsecase
 }
 
-// GetUserInfo 获取用户信息
+// GetUserInfo godoc
+// @Summary      获取用户信息
+// @Description  获取当前登录用户的详细信息
+// @Tags         用户信息
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Success      200 {object} domain.SuccessResponse{data=domain.UserInfoResponse} "获取成功"
+// @Failure      401 {object} domain.ErrorResponse "未授权访问"
+// @Failure      404 {object} domain.ErrorResponse "用户不存在"
+// @Router       /user/info [get]
 func (uc *UserInfoController) GetUserInfo(c *gin.Context) {
 	userIDValue, exists := c.Get("x-user-id")
 	if !exists {
@@ -51,7 +61,19 @@ func (uc *UserInfoController) GetUserInfo(c *gin.Context) {
 	c.JSON(http.StatusOK, domain.NewSuccessResponse(userInfo))
 }
 
-// UpdateUserInfo 更新用户信息
+// UpdateUserInfo godoc
+// @Summary      更新用户信息
+// @Description  更新当前登录用户的个人信息
+// @Tags         用户信息
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        request body domain.UpdateUserInfoRequest true "用户信息"
+// @Success      200 {object} domain.SuccessResponse{data=map[string]interface{}} "更新成功"
+// @Failure      400 {object} domain.ErrorResponse "请求参数错误"
+// @Failure      401 {object} domain.ErrorResponse "未授权访问"
+// @Failure      500 {object} domain.ErrorResponse "服务器错误"
+// @Router       /user/info [put]
 func (uc *UserInfoController) UpdateUserInfo(c *gin.Context) {
 	userIDValue, exists := c.Get("x-user-id")
 	if !exists {

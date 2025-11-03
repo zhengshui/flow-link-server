@@ -12,7 +12,20 @@ type StatsController struct {
 	StatsUsecase domain.StatsUsecase
 }
 
-// GetTrainingStats 获取训练统计
+// GetTrainingStats godoc
+// @Summary      获取训练统计
+// @Description  获取用户的训练统计数据，支持按周期查询
+// @Tags         统计
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        period query string false "统计周期(week/month/year)" default(week)
+// @Param        startDate query string false "开始日期" format(date)
+// @Param        endDate query string false "结束日期" format(date)
+// @Success      200 {object} domain.SuccessResponse{data=domain.TrainingStats} "获取成功"
+// @Failure      401 {object} domain.ErrorResponse "未授权访问"
+// @Failure      500 {object} domain.ErrorResponse "服务器错误"
+// @Router       /stats/training [get]
 func (sc *StatsController) GetTrainingStats(c *gin.Context) {
 	userIDValue, exists := c.Get("x-user-id")
 	if !exists {
@@ -40,7 +53,18 @@ func (sc *StatsController) GetTrainingStats(c *gin.Context) {
 	c.JSON(http.StatusOK, domain.NewSuccessResponse(stats))
 }
 
-// GetMuscleGroupStats 获取肌群训练统计
+// GetMuscleGroupStats godoc
+// @Summary      获取肌群训练统计
+// @Description  获取用户的肌群训练统计数据
+// @Tags         统计
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        period query string false "统计周期(week/month/year)" default(month)
+// @Success      200 {object} domain.SuccessResponse{data=[]domain.MuscleGroupStats} "获取成功"
+// @Failure      401 {object} domain.ErrorResponse "未授权访问"
+// @Failure      500 {object} domain.ErrorResponse "服务器错误"
+// @Router       /stats/muscle-groups [get]
 func (sc *StatsController) GetMuscleGroupStats(c *gin.Context) {
 	userIDValue, exists := c.Get("x-user-id")
 	if !exists {
@@ -66,7 +90,17 @@ func (sc *StatsController) GetMuscleGroupStats(c *gin.Context) {
 	c.JSON(http.StatusOK, domain.NewSuccessResponse(stats))
 }
 
-// GetPersonalRecords 获取个人记录
+// GetPersonalRecords godoc
+// @Summary      获取个人记录
+// @Description  获取用户的个人最佳记录
+// @Tags         统计
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Success      200 {object} domain.SuccessResponse{data=[]domain.PersonalRecord} "获取成功"
+// @Failure      401 {object} domain.ErrorResponse "未授权访问"
+// @Failure      500 {object} domain.ErrorResponse "服务器错误"
+// @Router       /stats/personal-records [get]
 func (sc *StatsController) GetPersonalRecords(c *gin.Context) {
 	userIDValue, exists := c.Get("x-user-id")
 	if !exists {
@@ -89,7 +123,19 @@ func (sc *StatsController) GetPersonalRecords(c *gin.Context) {
 	c.JSON(http.StatusOK, domain.NewSuccessResponse(records))
 }
 
-// GetCalendar 获取日历数据
+// GetCalendar godoc
+// @Summary      获取日历数据
+// @Description  获取用户指定月份的训练日历数据
+// @Tags         统计
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        year query int false "年份" default(2024)
+// @Param        month query int false "月份" default(1)
+// @Success      200 {object} domain.SuccessResponse{data=[]domain.CalendarDay} "获取成功"
+// @Failure      401 {object} domain.ErrorResponse "未授权访问"
+// @Failure      500 {object} domain.ErrorResponse "服务器错误"
+// @Router       /stats/calendar [get]
 func (sc *StatsController) GetCalendar(c *gin.Context) {
 	userIDValue, exists := c.Get("x-user-id")
 	if !exists {

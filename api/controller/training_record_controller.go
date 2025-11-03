@@ -12,7 +12,19 @@ type TrainingRecordController struct {
 	TrainingRecordUsecase domain.TrainingRecordUsecase
 }
 
-// Create 创建训练记录
+// Create godoc
+// @Summary      创建训练记录
+// @Description  创建新的训练记录
+// @Tags         训练记录
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        request body domain.CreateTrainingRecordRequest true "训练记录信息"
+// @Success      200 {object} domain.SuccessResponse{data=domain.TrainingRecord} "创建成功"
+// @Failure      400 {object} domain.ErrorResponse "请求参数错误"
+// @Failure      401 {object} domain.ErrorResponse "未授权访问"
+// @Failure      500 {object} domain.ErrorResponse "服务器错误"
+// @Router       /training-records [post]
 func (tc *TrainingRecordController) Create(c *gin.Context) {
 	userIDValue, exists := c.Get("x-user-id")
 	if !exists {
@@ -42,7 +54,19 @@ func (tc *TrainingRecordController) Create(c *gin.Context) {
 	c.JSON(http.StatusOK, domain.NewSuccessResponse(result))
 }
 
-// GetByID 获取训练记录详情
+// GetByID godoc
+// @Summary      获取训练记录详情
+// @Description  根据ID获取训练记录详细信息
+// @Tags         训练记录
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        recordId path string true "记录ID"
+// @Success      200 {object} domain.SuccessResponse{data=domain.TrainingRecord} "获取成功"
+// @Failure      400 {object} domain.ErrorResponse "记录ID不能为空"
+// @Failure      401 {object} domain.ErrorResponse "未授权访问"
+// @Failure      404 {object} domain.ErrorResponse "训练记录不存在"
+// @Router       /training-records/{recordId} [get]
 func (tc *TrainingRecordController) GetByID(c *gin.Context) {
 	userIDValue, exists := c.Get("x-user-id")
 	if !exists {
@@ -71,7 +95,22 @@ func (tc *TrainingRecordController) GetByID(c *gin.Context) {
 	c.JSON(http.StatusOK, domain.NewSuccessResponse(record))
 }
 
-// GetList 获取训练记录列表
+// GetList godoc
+// @Summary      获取训练记录列表
+// @Description  获取训练记录列表，支持分页和筛选
+// @Tags         训练记录
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        page query int false "页码" default(1)
+// @Param        pageSize query int false "每页数量" default(10)
+// @Param        startDate query string false "开始日期" format(date)
+// @Param        endDate query string false "结束日期" format(date)
+// @Param        planId query int false "计划ID"
+// @Success      200 {object} domain.SuccessResponse{data=domain.PaginatedData} "获取成功"
+// @Failure      401 {object} domain.ErrorResponse "未授权访问"
+// @Failure      500 {object} domain.ErrorResponse "服务器错误"
+// @Router       /training-records [get]
 func (tc *TrainingRecordController) GetList(c *gin.Context) {
 	userIDValue, exists := c.Get("x-user-id")
 	if !exists {
@@ -112,7 +151,20 @@ func (tc *TrainingRecordController) GetList(c *gin.Context) {
 	c.JSON(http.StatusOK, domain.NewSuccessResponse(paginatedData))
 }
 
-// Update 更新训练记录
+// Update godoc
+// @Summary      更新训练记录
+// @Description  更新指定ID的训练记录
+// @Tags         训练记录
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        recordId path string true "记录ID"
+// @Param        request body domain.UpdateTrainingRecordRequest true "训练记录信息"
+// @Success      200 {object} domain.SuccessResponse{data=map[string]interface{}} "更新成功"
+// @Failure      400 {object} domain.ErrorResponse "请求参数错误"
+// @Failure      401 {object} domain.ErrorResponse "未授权访问"
+// @Failure      500 {object} domain.ErrorResponse "服务器错误"
+// @Router       /training-records/{recordId} [put]
 func (tc *TrainingRecordController) Update(c *gin.Context) {
 	userIDValue, exists := c.Get("x-user-id")
 	if !exists {
@@ -150,7 +202,19 @@ func (tc *TrainingRecordController) Update(c *gin.Context) {
 	}))
 }
 
-// Delete 删除训练记录
+// Delete godoc
+// @Summary      删除训练记录
+// @Description  删除指定ID的训练记录
+// @Tags         训练记录
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        recordId path string true "记录ID"
+// @Success      200 {object} domain.SuccessResponse{data=map[string]interface{}} "删除成功"
+// @Failure      400 {object} domain.ErrorResponse "记录ID不能为空"
+// @Failure      401 {object} domain.ErrorResponse "未授权访问"
+// @Failure      500 {object} domain.ErrorResponse "服务器错误"
+// @Router       /training-records/{recordId} [delete]
 func (tc *TrainingRecordController) Delete(c *gin.Context) {
 	userIDValue, exists := c.Get("x-user-id")
 	if !exists {

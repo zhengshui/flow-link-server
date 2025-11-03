@@ -1,0 +1,1540 @@
+basePath: /api
+definitions:
+  domain.CalendarDay:
+    properties:
+      date:
+        description: 日期 YYYY-MM-DD
+        type: string
+      hasTraining:
+        description: 是否有训练
+        type: boolean
+      totalDuration:
+        description: 总时长
+        type: integer
+      trainingCount:
+        description: 训练次数
+        type: integer
+    type: object
+  domain.CompleteDayRequest:
+    properties:
+      dayNumber:
+        type: integer
+      recordId:
+        type: integer
+    required:
+    - dayNumber
+    type: object
+  domain.CreateCustomPlanRequest:
+    properties:
+      description:
+        type: string
+      durationWeeks:
+        type: integer
+      goal:
+        type: string
+      name:
+        type: string
+      startDate:
+        type: string
+      trainingDays:
+        items:
+          $ref: '#/definitions/domain.TrainingDay'
+        type: array
+      trainingDaysPerWeek:
+        type: integer
+    required:
+    - durationWeeks
+    - goal
+    - name
+    - startDate
+    - trainingDays
+    - trainingDaysPerWeek
+    type: object
+  domain.CreatePlanFromTemplateRequest:
+    properties:
+      name:
+        type: string
+      startDate:
+        type: string
+      templateId:
+        type: integer
+    required:
+    - startDate
+    - templateId
+    type: object
+  domain.CreateTrainingRecordRequest:
+    properties:
+      caloriesBurned:
+        type: integer
+      date:
+        type: string
+      duration:
+        type: integer
+      endTime:
+        type: string
+      exercises:
+        items:
+          $ref: '#/definitions/domain.Exercise'
+        type: array
+      mood:
+        type: string
+      notes:
+        type: string
+      planId:
+        type: integer
+      startTime:
+        type: string
+      title:
+        type: string
+      totalSets:
+        type: integer
+      totalWeight:
+        type: number
+    required:
+    - date
+    - duration
+    - endTime
+    - exercises
+    - startTime
+    - title
+    type: object
+  domain.DailyStats:
+    properties:
+      calories:
+        description: 当日消耗卡路里
+        type: integer
+      date:
+        description: 日期 YYYY-MM-DD
+        type: string
+      duration:
+        description: 当日训练时长
+        type: integer
+      sets:
+        description: 当日总组数
+        type: integer
+      trainingCount:
+        description: 当日训练次数
+        type: integer
+      weight:
+        description: 当日总重量
+        type: number
+    type: object
+  domain.ErrorResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  domain.Exercise:
+    properties:
+      duration:
+        description: 训练时长(分钟)
+        type: integer
+      id:
+        type: integer
+      muscleGroup:
+        description: 目标肌群
+        type: string
+      name:
+        description: 项目名称
+        type: string
+      notes:
+        description: 备注
+        type: string
+      reps:
+        description: 次数
+        type: integer
+      restTime:
+        description: 休息时间(秒)
+        type: integer
+      sets:
+        description: 组数
+        type: integer
+      weight:
+        description: 重量(kg)
+        type: number
+    type: object
+  domain.FitnessPlan:
+    properties:
+      completedDays:
+        description: 已完成的训练日
+        items:
+          type: integer
+        type: array
+      completionRate:
+        description: 完成率(百分比)
+        type: integer
+      createdAt:
+        type: string
+      currentDay:
+        description: 当前第几天
+        type: integer
+      currentWeek:
+        description: 当前第几周
+        type: integer
+      description:
+        type: string
+      durationWeeks:
+        description: 计划周期(周)
+        type: integer
+      endDate:
+        description: 结束日期 YYYY-MM-DD
+        type: string
+      goal:
+        description: 训练目标
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      startDate:
+        description: 开始日期 YYYY-MM-DD
+        type: string
+      status:
+        description: 进行中/已完成/已暂停/已归档
+        type: string
+      templateId:
+        description: 模板ID(0表示自定义)
+        type: integer
+      totalCompletedDays:
+        description: 累计完成天数
+        type: integer
+      trainingDays:
+        description: 训练日程
+        items:
+          $ref: '#/definitions/domain.TrainingDay'
+        type: array
+      trainingDaysPerWeek:
+        description: 每周训练天数
+        type: integer
+      updatedAt:
+        type: string
+      userId:
+        type: string
+    type: object
+  domain.LoginRequest:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  domain.LoginResponse:
+    properties:
+      role:
+        type: string
+      token:
+        type: string
+    type: object
+  domain.MuscleGroupStats:
+    properties:
+      muscleGroup:
+        description: 肌群名称
+        type: string
+      percentage:
+        description: 占比百分比
+        type: integer
+      totalWeight:
+        description: 总重量
+        type: number
+      trainingCount:
+        description: 训练次数
+        type: integer
+    type: object
+  domain.PaginatedData:
+    properties:
+      page:
+        type: integer
+      pageSize:
+        type: integer
+      plans:
+        description: 用于计划
+      records:
+        description: 用于训练记录
+      templates:
+        description: 用于模板
+      total:
+        type: integer
+    type: object
+  domain.PersonalRecord:
+    properties:
+      date:
+        description: 创建日期
+        type: string
+      exerciseName:
+        description: 训练项目名称
+        type: string
+      maxWeight:
+        description: 最大重量
+        type: number
+      recordId:
+        description: 记录ID
+        type: integer
+    type: object
+  domain.PlanTemplate:
+    properties:
+      author:
+        description: 作者/来源
+        type: string
+      createdAt:
+        type: string
+      description:
+        type: string
+      durationWeeks:
+        description: 计划周期(周)
+        type: integer
+      goal:
+        description: 训练目标
+        type: string
+      id:
+        type: string
+      imageUrl:
+        description: 封面图片URL
+        type: string
+      level:
+        description: 难度等级(初级/中级/高级)
+        type: string
+      name:
+        type: string
+      tags:
+        description: 标签
+        items:
+          type: string
+        type: array
+      trainingDays:
+        description: 训练日程
+        items:
+          $ref: '#/definitions/domain.TrainingDay'
+        type: array
+      trainingDaysPerWeek:
+        description: 每周训练天数
+        type: integer
+    type: object
+  domain.RefreshTokenRequest:
+    properties:
+      refreshToken:
+        type: string
+    required:
+    - refreshToken
+    type: object
+  domain.RefreshTokenResponse:
+    properties:
+      accessToken:
+        type: string
+      refreshToken:
+        type: string
+    type: object
+  domain.SignupRequest:
+    properties:
+      age:
+        type: integer
+      email:
+        type: string
+      fitnessGoal:
+        description: 增肌/减脂/力量提升/耐力提升/综合健身
+        type: string
+      gender:
+        description: 男/女
+        type: string
+      height:
+        description: 身高cm
+        type: number
+      nickname:
+        type: string
+      password:
+        maxLength: 20
+        minLength: 6
+        type: string
+      phone:
+        type: string
+      targetWeight:
+        description: 目标体重kg
+        type: number
+      username:
+        maxLength: 20
+        minLength: 4
+        type: string
+      weight:
+        description: 体重kg
+        type: number
+    required:
+    - password
+    - username
+    type: object
+  domain.SignupResponse:
+    properties:
+      role:
+        type: string
+      token:
+        type: string
+    type: object
+  domain.SuccessResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  domain.TrainingDay:
+    properties:
+      dayName:
+        description: 训练日名称
+        type: string
+      dayNumber:
+        description: 第几天
+        type: integer
+      exercises:
+        description: 当日训练项目
+        items:
+          $ref: '#/definitions/domain.Exercise'
+        type: array
+      isRestDay:
+        description: 是否为休息日
+        type: boolean
+      notes:
+        description: 当日备注
+        type: string
+    type: object
+  domain.TrainingRecord:
+    properties:
+      caloriesBurned:
+        description: 消耗卡路里
+        type: integer
+      createdAt:
+        type: string
+      date:
+        description: YYYY-MM-DD
+        type: string
+      duration:
+        description: 总时长(分钟)
+        type: integer
+      endTime:
+        description: HH:mm
+        type: string
+      exercises:
+        description: 训练项目列表
+        items:
+          $ref: '#/definitions/domain.Exercise'
+        type: array
+      id:
+        type: string
+      mood:
+        description: 训练状态(优秀/良好/一般/疲劳)
+        type: string
+      notes:
+        description: 训练备注
+        type: string
+      planId:
+        description: 关联计划ID(0表示无计划)
+        type: integer
+      startTime:
+        description: HH:mm
+        type: string
+      title:
+        type: string
+      totalSets:
+        description: 总组数
+        type: integer
+      totalWeight:
+        description: 总重量(kg)
+        type: number
+      updatedAt:
+        type: string
+      userId:
+        type: string
+    type: object
+  domain.TrainingStats:
+    properties:
+      avgDuration:
+        description: 平均训练时长
+        type: integer
+      avgWeight:
+        description: 平均单次重量
+        type: number
+      dailyStats:
+        description: 每日统计数据
+        items:
+          $ref: '#/definitions/domain.DailyStats'
+        type: array
+      endDate:
+        description: 统计结束日期
+        type: string
+      favoriteExercise:
+        description: 最常做的训练项目
+        type: string
+      mostTrainedMuscle:
+        description: 训练最多的肌群
+        type: string
+      period:
+        description: 统计周期(week/month/year)
+        type: string
+      startDate:
+        description: 统计开始日期
+        type: string
+      totalCalories:
+        description: 总消耗卡路里
+        type: integer
+      totalDuration:
+        description: 总训练时长(分钟)
+        type: integer
+      totalSets:
+        description: 总组数
+        type: integer
+      totalTrainingCount:
+        description: 总训练次数
+        type: integer
+      totalWeight:
+        description: 总重量(kg)
+        type: number
+      userId:
+        type: string
+    type: object
+  domain.UpdatePlanStatusRequest:
+    properties:
+      status:
+        type: string
+    required:
+    - status
+    type: object
+  domain.UpdateTrainingRecordRequest:
+    properties:
+      caloriesBurned:
+        type: integer
+      date:
+        type: string
+      duration:
+        type: integer
+      endTime:
+        type: string
+      exercises:
+        items:
+          $ref: '#/definitions/domain.Exercise'
+        type: array
+      mood:
+        type: string
+      notes:
+        type: string
+      planId:
+        type: integer
+      startTime:
+        type: string
+      title:
+        type: string
+      totalSets:
+        type: integer
+      totalWeight:
+        type: number
+    type: object
+  domain.UpdateUserInfoRequest:
+    properties:
+      age:
+        type: integer
+      avatarUrl:
+        type: string
+      email:
+        type: string
+      fitnessGoal:
+        type: string
+      gender:
+        type: string
+      height:
+        type: number
+      nickname:
+        type: string
+      phone:
+        type: string
+      targetWeight:
+        type: number
+      weight:
+        type: number
+    type: object
+  domain.UserInfoResponse:
+    properties:
+      age:
+        type: integer
+      avatarUrl:
+        type: string
+      email:
+        type: string
+      fitnessGoal:
+        type: string
+      gender:
+        type: string
+      height:
+        type: number
+      id:
+        type: integer
+      joinDate:
+        type: string
+      nickname:
+        type: string
+      phone:
+        type: string
+      targetWeight:
+        type: number
+      username:
+        type: string
+      weight:
+        type: number
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: 健身计划管理系统API
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Flow Link Server API
+  version: "1.0"
+paths:
+  /fitness-plans:
+    get:
+      consumes:
+      - application/json
+      description: 获取用户的健身计划列表，支持分页和状态筛选
+      parameters:
+      - default: 1
+        description: 页码
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: 每页数量
+        in: query
+        name: pageSize
+        type: integer
+      - description: 计划状态
+        in: query
+        name: status
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/domain.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/domain.PaginatedData'
+              type: object
+        "401":
+          description: 未授权访问
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "500":
+          description: 服务器错误
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 获取健身计划列表
+      tags:
+      - 健身计划
+  /fitness-plans/{planId}:
+    delete:
+      consumes:
+      - application/json
+      description: 删除指定ID的健身计划
+      parameters:
+      - description: 计划ID
+        in: path
+        name: planId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 删除成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/domain.SuccessResponse'
+            - properties:
+                data:
+                  additionalProperties: true
+                  type: object
+              type: object
+        "400":
+          description: 计划ID不能为空
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "401":
+          description: 未授权访问
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "500":
+          description: 服务器错误
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 删除健身计划
+      tags:
+      - 健身计划
+    get:
+      consumes:
+      - application/json
+      description: 根据ID获取健身计划的详细信息
+      parameters:
+      - description: 计划ID
+        in: path
+        name: planId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/domain.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/domain.FitnessPlan'
+              type: object
+        "400":
+          description: 计划ID不能为空
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "401":
+          description: 未授权访问
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "404":
+          description: 健身计划不存在
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 获取健身计划详情
+      tags:
+      - 健身计划
+  /fitness-plans/{planId}/complete-day:
+    post:
+      consumes:
+      - application/json
+      description: 标记健身计划中的某一天为已完成
+      parameters:
+      - description: 计划ID
+        in: path
+        name: planId
+        required: true
+        type: string
+      - description: 完成日期信息
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/domain.CompleteDayRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 完成成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/domain.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/domain.FitnessPlan'
+              type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "401":
+          description: 未授权访问
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "500":
+          description: 服务器错误
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 完成训练日
+      tags:
+      - 健身计划
+  /fitness-plans/{planId}/status:
+    put:
+      consumes:
+      - application/json
+      description: 更新健身计划的状态（激活、暂停、完成等）
+      parameters:
+      - description: 计划ID
+        in: path
+        name: planId
+        required: true
+        type: string
+      - description: 状态信息
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/domain.UpdatePlanStatusRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 更新成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/domain.SuccessResponse'
+            - properties:
+                data:
+                  additionalProperties: true
+                  type: object
+              type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "401":
+          description: 未授权访问
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "500":
+          description: 服务器错误
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 更新计划状态
+      tags:
+      - 健身计划
+  /fitness-plans/custom:
+    post:
+      consumes:
+      - application/json
+      description: 创建完全自定义的健身计划
+      parameters:
+      - description: 自定义计划信息
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/domain.CreateCustomPlanRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 创建成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/domain.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/domain.FitnessPlan'
+              type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "401":
+          description: 未授权访问
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "500":
+          description: 服务器错误
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 创建自定义健身计划
+      tags:
+      - 健身计划
+  /fitness-plans/from-template:
+    post:
+      consumes:
+      - application/json
+      description: 使用计划模板创建新的健身计划
+      parameters:
+      - description: 模板创建请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/domain.CreatePlanFromTemplateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 创建成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/domain.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/domain.FitnessPlan'
+              type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "401":
+          description: 未授权访问
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "500":
+          description: 服务器错误
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 基于模板创建健身计划
+      tags:
+      - 健身计划
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: 用户通过用户名和密码登录，返回JWT token
+      parameters:
+      - description: 登录信息
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/domain.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 登录成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/domain.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/domain.LoginResponse'
+              type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "401":
+          description: 用户名或密码错误
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "404":
+          description: 用户不存在
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      summary: 用户登录
+      tags:
+      - 认证
+  /plan-templates:
+    get:
+      consumes:
+      - application/json
+      description: 获取计划模板列表，支持分页和筛选（无需认证）
+      parameters:
+      - default: 1
+        description: 页码
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: 每页数量
+        in: query
+        name: pageSize
+        type: integer
+      - description: 健身目标
+        in: query
+        name: goal
+        type: string
+      - description: 难度级别
+        in: query
+        name: level
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/domain.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/domain.PaginatedData'
+              type: object
+        "500":
+          description: 服务器错误
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      summary: 获取计划模板列表
+      tags:
+      - 计划模板
+  /plan-templates/{templateId}:
+    get:
+      consumes:
+      - application/json
+      description: 根据ID获取计划模板的详细信息（无需认证）
+      parameters:
+      - description: 模板ID
+        in: path
+        name: templateId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/domain.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/domain.PlanTemplate'
+              type: object
+        "400":
+          description: 模板ID不能为空
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "404":
+          description: 计划模板不存在
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      summary: 获取计划模板详情
+      tags:
+      - 计划模板
+  /refresh:
+    post:
+      consumes:
+      - application/json
+      description: 使用刷新令牌获取新的访问令牌和刷新令牌
+      parameters:
+      - description: 刷新令牌
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/domain.RefreshTokenRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 刷新成功
+          schema:
+            $ref: '#/definitions/domain.RefreshTokenResponse'
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "401":
+          description: 令牌无效或已过期
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "500":
+          description: 服务器错误
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      summary: 刷新访问令牌
+      tags:
+      - 认证
+  /signup:
+    post:
+      consumes:
+      - application/json
+      description: 注册新用户并返回JWT token
+      parameters:
+      - description: 注册信息
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/domain.SignupRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 注册成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/domain.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/domain.SignupResponse'
+              type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "409":
+          description: 用户名已存在
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "500":
+          description: 服务器错误
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      summary: 用户注册
+      tags:
+      - 认证
+  /stats/calendar:
+    get:
+      consumes:
+      - application/json
+      description: 获取用户指定月份的训练日历数据
+      parameters:
+      - default: 2024
+        description: 年份
+        in: query
+        name: year
+        type: integer
+      - default: 1
+        description: 月份
+        in: query
+        name: month
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/domain.SuccessResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/domain.CalendarDay'
+                  type: array
+              type: object
+        "401":
+          description: 未授权访问
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "500":
+          description: 服务器错误
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 获取日历数据
+      tags:
+      - 统计
+  /stats/muscle-groups:
+    get:
+      consumes:
+      - application/json
+      description: 获取用户的肌群训练统计数据
+      parameters:
+      - default: month
+        description: 统计周期(week/month/year)
+        in: query
+        name: period
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/domain.SuccessResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/domain.MuscleGroupStats'
+                  type: array
+              type: object
+        "401":
+          description: 未授权访问
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "500":
+          description: 服务器错误
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 获取肌群训练统计
+      tags:
+      - 统计
+  /stats/personal-records:
+    get:
+      consumes:
+      - application/json
+      description: 获取用户的个人最佳记录
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/domain.SuccessResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/domain.PersonalRecord'
+                  type: array
+              type: object
+        "401":
+          description: 未授权访问
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "500":
+          description: 服务器错误
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 获取个人记录
+      tags:
+      - 统计
+  /stats/training:
+    get:
+      consumes:
+      - application/json
+      description: 获取用户的训练统计数据，支持按周期查询
+      parameters:
+      - default: week
+        description: 统计周期(week/month/year)
+        in: query
+        name: period
+        type: string
+      - description: 开始日期
+        format: date
+        in: query
+        name: startDate
+        type: string
+      - description: 结束日期
+        format: date
+        in: query
+        name: endDate
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/domain.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/domain.TrainingStats'
+              type: object
+        "401":
+          description: 未授权访问
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "500":
+          description: 服务器错误
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 获取训练统计
+      tags:
+      - 统计
+  /training-records:
+    get:
+      consumes:
+      - application/json
+      description: 获取训练记录列表，支持分页和筛选
+      parameters:
+      - default: 1
+        description: 页码
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: 每页数量
+        in: query
+        name: pageSize
+        type: integer
+      - description: 开始日期
+        format: date
+        in: query
+        name: startDate
+        type: string
+      - description: 结束日期
+        format: date
+        in: query
+        name: endDate
+        type: string
+      - description: 计划ID
+        in: query
+        name: planId
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/domain.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/domain.PaginatedData'
+              type: object
+        "401":
+          description: 未授权访问
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "500":
+          description: 服务器错误
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 获取训练记录列表
+      tags:
+      - 训练记录
+    post:
+      consumes:
+      - application/json
+      description: 创建新的训练记录
+      parameters:
+      - description: 训练记录信息
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/domain.CreateTrainingRecordRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 创建成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/domain.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/domain.TrainingRecord'
+              type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "401":
+          description: 未授权访问
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "500":
+          description: 服务器错误
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 创建训练记录
+      tags:
+      - 训练记录
+  /training-records/{recordId}:
+    delete:
+      consumes:
+      - application/json
+      description: 删除指定ID的训练记录
+      parameters:
+      - description: 记录ID
+        in: path
+        name: recordId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 删除成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/domain.SuccessResponse'
+            - properties:
+                data:
+                  additionalProperties: true
+                  type: object
+              type: object
+        "400":
+          description: 记录ID不能为空
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "401":
+          description: 未授权访问
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "500":
+          description: 服务器错误
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 删除训练记录
+      tags:
+      - 训练记录
+    get:
+      consumes:
+      - application/json
+      description: 根据ID获取训练记录详细信息
+      parameters:
+      - description: 记录ID
+        in: path
+        name: recordId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/domain.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/domain.TrainingRecord'
+              type: object
+        "400":
+          description: 记录ID不能为空
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "401":
+          description: 未授权访问
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "404":
+          description: 训练记录不存在
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 获取训练记录详情
+      tags:
+      - 训练记录
+    put:
+      consumes:
+      - application/json
+      description: 更新指定ID的训练记录
+      parameters:
+      - description: 记录ID
+        in: path
+        name: recordId
+        required: true
+        type: string
+      - description: 训练记录信息
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/domain.UpdateTrainingRecordRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 更新成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/domain.SuccessResponse'
+            - properties:
+                data:
+                  additionalProperties: true
+                  type: object
+              type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "401":
+          description: 未授权访问
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "500":
+          description: 服务器错误
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 更新训练记录
+      tags:
+      - 训练记录
+  /user/info:
+    get:
+      consumes:
+      - application/json
+      description: 获取当前登录用户的详细信息
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/domain.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/domain.UserInfoResponse'
+              type: object
+        "401":
+          description: 未授权访问
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "404":
+          description: 用户不存在
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 获取用户信息
+      tags:
+      - 用户信息
+    put:
+      consumes:
+      - application/json
+      description: 更新当前登录用户的个人信息
+      parameters:
+      - description: 用户信息
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/domain.UpdateUserInfoRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 更新成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/domain.SuccessResponse'
+            - properties:
+                data:
+                  additionalProperties: true
+                  type: object
+              type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "401":
+          description: 未授权访问
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "500":
+          description: 服务器错误
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 更新用户信息
+      tags:
+      - 用户信息
+securityDefinitions:
+  BearerAuth:
+    description: Type "Bearer" followed by a space and JWT token.
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

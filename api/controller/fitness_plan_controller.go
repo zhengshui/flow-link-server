@@ -12,7 +12,19 @@ type FitnessPlanController struct {
 	FitnessPlanUsecase domain.FitnessPlanUsecase
 }
 
-// CreateFromTemplate 基于模板创建计划
+// CreateFromTemplate godoc
+// @Summary      基于模板创建健身计划
+// @Description  使用计划模板创建新的健身计划
+// @Tags         健身计划
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        request body domain.CreatePlanFromTemplateRequest true "模板创建请求"
+// @Success      200 {object} domain.SuccessResponse{data=domain.FitnessPlan} "创建成功"
+// @Failure      400 {object} domain.ErrorResponse "请求参数错误"
+// @Failure      401 {object} domain.ErrorResponse "未授权访问"
+// @Failure      500 {object} domain.ErrorResponse "服务器错误"
+// @Router       /fitness-plans/from-template [post]
 func (fc *FitnessPlanController) CreateFromTemplate(c *gin.Context) {
 	userIDValue, exists := c.Get("x-user-id")
 	if !exists {
@@ -42,7 +54,19 @@ func (fc *FitnessPlanController) CreateFromTemplate(c *gin.Context) {
 	c.JSON(http.StatusOK, domain.NewSuccessResponse(result))
 }
 
-// CreateCustom 创建自定义计划
+// CreateCustom godoc
+// @Summary      创建自定义健身计划
+// @Description  创建完全自定义的健身计划
+// @Tags         健身计划
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        request body domain.CreateCustomPlanRequest true "自定义计划信息"
+// @Success      200 {object} domain.SuccessResponse{data=domain.FitnessPlan} "创建成功"
+// @Failure      400 {object} domain.ErrorResponse "请求参数错误"
+// @Failure      401 {object} domain.ErrorResponse "未授权访问"
+// @Failure      500 {object} domain.ErrorResponse "服务器错误"
+// @Router       /fitness-plans/custom [post]
 func (fc *FitnessPlanController) CreateCustom(c *gin.Context) {
 	userIDValue, exists := c.Get("x-user-id")
 	if !exists {
@@ -72,7 +96,19 @@ func (fc *FitnessPlanController) CreateCustom(c *gin.Context) {
 	c.JSON(http.StatusOK, domain.NewSuccessResponse(result))
 }
 
-// GetByID 获取健身计划详情
+// GetByID godoc
+// @Summary      获取健身计划详情
+// @Description  根据ID获取健身计划的详细信息
+// @Tags         健身计划
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        planId path string true "计划ID"
+// @Success      200 {object} domain.SuccessResponse{data=domain.FitnessPlan} "获取成功"
+// @Failure      400 {object} domain.ErrorResponse "计划ID不能为空"
+// @Failure      401 {object} domain.ErrorResponse "未授权访问"
+// @Failure      404 {object} domain.ErrorResponse "健身计划不存在"
+// @Router       /fitness-plans/{planId} [get]
 func (fc *FitnessPlanController) GetByID(c *gin.Context) {
 	userIDValue, exists := c.Get("x-user-id")
 	if !exists {
@@ -101,7 +137,20 @@ func (fc *FitnessPlanController) GetByID(c *gin.Context) {
 	c.JSON(http.StatusOK, domain.NewSuccessResponse(plan))
 }
 
-// GetList 获取健身计划列表
+// GetList godoc
+// @Summary      获取健身计划列表
+// @Description  获取用户的健身计划列表，支持分页和状态筛选
+// @Tags         健身计划
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        page query int false "页码" default(1)
+// @Param        pageSize query int false "每页数量" default(10)
+// @Param        status query string false "计划状态"
+// @Success      200 {object} domain.SuccessResponse{data=domain.PaginatedData} "获取成功"
+// @Failure      401 {object} domain.ErrorResponse "未授权访问"
+// @Failure      500 {object} domain.ErrorResponse "服务器错误"
+// @Router       /fitness-plans [get]
 func (fc *FitnessPlanController) GetList(c *gin.Context) {
 	userIDValue, exists := c.Get("x-user-id")
 	if !exists {
@@ -138,7 +187,20 @@ func (fc *FitnessPlanController) GetList(c *gin.Context) {
 	c.JSON(http.StatusOK, domain.NewSuccessResponse(paginatedData))
 }
 
-// UpdateStatus 更新计划状态
+// UpdateStatus godoc
+// @Summary      更新计划状态
+// @Description  更新健身计划的状态（激活、暂停、完成等）
+// @Tags         健身计划
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        planId path string true "计划ID"
+// @Param        request body domain.UpdatePlanStatusRequest true "状态信息"
+// @Success      200 {object} domain.SuccessResponse{data=map[string]interface{}} "更新成功"
+// @Failure      400 {object} domain.ErrorResponse "请求参数错误"
+// @Failure      401 {object} domain.ErrorResponse "未授权访问"
+// @Failure      500 {object} domain.ErrorResponse "服务器错误"
+// @Router       /fitness-plans/{planId}/status [put]
 func (fc *FitnessPlanController) UpdateStatus(c *gin.Context) {
 	userIDValue, exists := c.Get("x-user-id")
 	if !exists {
@@ -176,7 +238,20 @@ func (fc *FitnessPlanController) UpdateStatus(c *gin.Context) {
 	}))
 }
 
-// CompleteDay 完成训练日
+// CompleteDay godoc
+// @Summary      完成训练日
+// @Description  标记健身计划中的某一天为已完成
+// @Tags         健身计划
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        planId path string true "计划ID"
+// @Param        request body domain.CompleteDayRequest true "完成日期信息"
+// @Success      200 {object} domain.SuccessResponse{data=domain.FitnessPlan} "完成成功"
+// @Failure      400 {object} domain.ErrorResponse "请求参数错误"
+// @Failure      401 {object} domain.ErrorResponse "未授权访问"
+// @Failure      500 {object} domain.ErrorResponse "服务器错误"
+// @Router       /fitness-plans/{planId}/complete-day [post]
 func (fc *FitnessPlanController) CompleteDay(c *gin.Context) {
 	userIDValue, exists := c.Get("x-user-id")
 	if !exists {
@@ -212,7 +287,19 @@ func (fc *FitnessPlanController) CompleteDay(c *gin.Context) {
 	c.JSON(http.StatusOK, domain.NewSuccessResponse(result))
 }
 
-// Delete 删除健身计划
+// Delete godoc
+// @Summary      删除健身计划
+// @Description  删除指定ID的健身计划
+// @Tags         健身计划
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        planId path string true "计划ID"
+// @Success      200 {object} domain.SuccessResponse{data=map[string]interface{}} "删除成功"
+// @Failure      400 {object} domain.ErrorResponse "计划ID不能为空"
+// @Failure      401 {object} domain.ErrorResponse "未授权访问"
+// @Failure      500 {object} domain.ErrorResponse "服务器错误"
+// @Router       /fitness-plans/{planId} [delete]
 func (fc *FitnessPlanController) Delete(c *gin.Context) {
 	userIDValue, exists := c.Get("x-user-id")
 	if !exists {

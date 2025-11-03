@@ -38,8 +38,8 @@ type FitnessPlan struct {
 	CompletedDays        []int              `bson:"completedDays" json:"completedDays"`         // 已完成的训练日
 	TotalCompletedDays   int                `bson:"totalCompletedDays" json:"totalCompletedDays"` // 累计完成天数
 	CompletionRate       int                `bson:"completionRate" json:"completionRate"`       // 完成率(百分比)
-	CreatedAt            primitive.DateTime `bson:"createdAt" json:"createdAt"`
-	UpdatedAt            primitive.DateTime `bson:"updatedAt" json:"updatedAt"`
+	CreatedAt            primitive.DateTime `bson:"createdAt" json:"createdAt" swaggertype:"string"`
+	UpdatedAt            primitive.DateTime `bson:"updatedAt" json:"updatedAt" swaggertype:"string"`
 }
 
 // FitnessPlanRepository 健身计划仓储接口

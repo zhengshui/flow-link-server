@@ -13,6 +13,18 @@ type RefreshTokenController struct {
 	Env                 *bootstrap.Env
 }
 
+// RefreshToken godoc
+// @Summary      刷新访问令牌
+// @Description  使用刷新令牌获取新的访问令牌和刷新令牌
+// @Tags         认证
+// @Accept       json
+// @Produce      json
+// @Param        request body domain.RefreshTokenRequest true "刷新令牌"
+// @Success      200 {object} domain.RefreshTokenResponse "刷新成功"
+// @Failure      400 {object} domain.ErrorResponse "请求参数错误"
+// @Failure      401 {object} domain.ErrorResponse "令牌无效或已过期"
+// @Failure      500 {object} domain.ErrorResponse "服务器错误"
+// @Router       /refresh [post]
 func (rtc *RefreshTokenController) RefreshToken(c *gin.Context) {
 	var request domain.RefreshTokenRequest
 

@@ -39,8 +39,8 @@ type TrainingRecord struct {
 	Notes          string             `bson:"notes" json:"notes,omitempty"`         // 训练备注
 	Mood           string             `bson:"mood" json:"mood,omitempty"`           // 训练状态(优秀/良好/一般/疲劳)
 	PlanID         int                `bson:"planId" json:"planId"`                 // 关联计划ID(0表示无计划)
-	CreatedAt      primitive.DateTime `bson:"createdAt" json:"createdAt"`
-	UpdatedAt      primitive.DateTime `bson:"updatedAt" json:"updatedAt"`
+	CreatedAt      primitive.DateTime `bson:"createdAt" json:"createdAt" swaggertype:"string"`
+	UpdatedAt      primitive.DateTime `bson:"updatedAt" json:"updatedAt" swaggertype:"string"`
 }
 
 // TrainingRecordRepository 训练记录仓储接口

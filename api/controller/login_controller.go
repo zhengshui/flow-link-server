@@ -15,6 +15,18 @@ type LoginController struct {
 	Env          *bootstrap.Env
 }
 
+// Login godoc
+// @Summary      用户登录
+// @Description  用户通过用户名和密码登录，返回JWT token
+// @Tags         认证
+// @Accept       json
+// @Produce      json
+// @Param        request body domain.LoginRequest true "登录信息"
+// @Success      200 {object} domain.SuccessResponse{data=domain.LoginResponse} "登录成功"
+// @Failure      400 {object} domain.ErrorResponse "请求参数错误"
+// @Failure      401 {object} domain.ErrorResponse "用户名或密码错误"
+// @Failure      404 {object} domain.ErrorResponse "用户不存在"
+// @Router       /login [post]
 func (lc *LoginController) Login(c *gin.Context) {
 	var request domain.LoginRequest
 

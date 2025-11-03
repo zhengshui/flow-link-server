@@ -23,7 +23,7 @@ type PlanTemplate struct {
 	ImageUrl            string             `bson:"imageUrl" json:"imageUrl,omitempty"`         // 封面图片URL
 	Author              string             `bson:"author" json:"author"`                       // 作者/来源
 	Tags                []string           `bson:"tags" json:"tags"`                           // 标签
-	CreatedAt           primitive.DateTime `bson:"createdAt" json:"createdAt"`
+	CreatedAt           primitive.DateTime `bson:"createdAt" json:"createdAt" swaggertype:"string"`
 }
 
 // PlanTemplateRepository 计划模板仓储接口
