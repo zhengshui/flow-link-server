@@ -3,19 +3,20 @@ package route
 import (
 	"time"
 
+	"github.com/gin-gonic/gin"
 	"github.com/zhengshui/flow-link-server/api/controller"
 	"github.com/zhengshui/flow-link-server/bootstrap"
 	"github.com/zhengshui/flow-link-server/domain"
 	"github.com/zhengshui/flow-link-server/mongo"
 	"github.com/zhengshui/flow-link-server/repository"
 	"github.com/zhengshui/flow-link-server/usecase"
-	"github.com/gin-gonic/gin"
 )
 
-func NewProfileRouter(env *bootstrap.Env, timeout time.Duration, db mongo.Database, group *gin.RouterGroup) {
+func NewUserInfoRouter(env *bootstrap.Env, timeout time.Duration, db mongo.Database, group *gin.RouterGroup) {
 	ur := repository.NewUserRepository(db, domain.CollectionUser)
-	pc := &controller.ProfileController{
-		ProfileUsecase: usecase.NewProfileUsecase(ur, timeout),
+	uc := &controller.UserInfoController{
+		UserInfoUsecase: usecase.NewUserInfoUsecase(ur, timeout),
 	}
-	group.GET("/profile", pc.Fetch)
+	group.GET("/user/info", uc.GetUserInfo)
+	group.PUT("/user/info", uc.UpdateUserInfo)
 }

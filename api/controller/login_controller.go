@@ -18,39 +18,33 @@ type LoginController struct {
 func (lc *LoginController) Login(c *gin.Context) {
 	var request domain.LoginRequest
 
-	err := c.ShouldBind(&request)
+	err := c.ShouldBindJSON(&request)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, domain.ErrorResponse{Message: err.Error()})
+		c.JSON(http.StatusBadRequest, domain.NewErrorResponse(400, err.Error()))
 		return
 	}
 
-	user, err := lc.LoginUsecase.GetUserByEmail(c, request.Email)
+	user, err := lc.LoginUsecase.GetUserByUsername(c, request.Username)
 	if err != nil {
-		c.JSON(http.StatusNotFound, domain.ErrorResponse{Message: "User not found with the given email"})
+		c.JSON(http.StatusNotFound, domain.NewErrorResponse(404, "用户名或密码错误"))
 		return
 	}
 
 	if bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(request.Password)) != nil {
-		c.JSON(http.StatusUnauthorized, domain.ErrorResponse{Message: "Invalid credentials"})
+		c.JSON(http.StatusUnauthorized, domain.NewErrorResponse(401, "用户名或密码错误"))
 		return
 	}
 
 	accessToken, err := lc.LoginUsecase.CreateAccessToken(&user, lc.Env.AccessTokenSecret, lc.Env.AccessTokenExpiryHour)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, domain.ErrorResponse{Message: err.Error()})
-		return
-	}
-
-	refreshToken, err := lc.LoginUsecase.CreateRefreshToken(&user, lc.Env.RefreshTokenSecret, lc.Env.RefreshTokenExpiryHour)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, domain.ErrorResponse{Message: err.Error()})
+		c.JSON(http.StatusInternalServerError, domain.NewErrorResponse(500, err.Error()))
 		return
 	}
 
 	loginResponse := domain.LoginResponse{
-		AccessToken:  accessToken,
-		RefreshToken: refreshToken,
+		Token: accessToken,
+		Role:  user.Role,
 	}
 
-	c.JSON(http.StatusOK, loginResponse)
+	c.JSON(http.StatusOK, domain.NewSuccessResponse(loginResponse))
 }

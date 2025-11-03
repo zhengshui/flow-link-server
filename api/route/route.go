@@ -10,16 +10,26 @@ import (
 )
 
 func Setup(env *bootstrap.Env, timeout time.Duration, db mongo.Database, gin *gin.Engine) {
-	publicRouter := gin.Group("")
-	// All Public APIs
+	// API group with /api prefix
+	apiGroup := gin.Group("/api")
+
+	// Public APIs (no authentication required)
+	publicRouter := apiGroup.Group("")
 	NewSignupRouter(env, timeout, db, publicRouter)
 	NewLoginRouter(env, timeout, db, publicRouter)
 	NewRefreshTokenRouter(env, timeout, db, publicRouter)
+	// Plan templates are public
+	NewPlanTemplateRouter(env, timeout, db, publicRouter)
 
-	protectedRouter := gin.Group("")
-	// Middleware to verify AccessToken
+	// Protected APIs (JWT authentication required)
+	protectedRouter := apiGroup.Group("")
 	protectedRouter.Use(middleware.JwtAuthMiddleware(env.AccessTokenSecret))
-	// All Private APIs
-	NewProfileRouter(env, timeout, db, protectedRouter)
-	NewTaskRouter(env, timeout, db, protectedRouter)
+	// User info
+	NewUserInfoRouter(env, timeout, db, protectedRouter)
+	// Training records
+	NewTrainingRecordRouter(env, timeout, db, protectedRouter)
+	// Fitness plans
+	NewFitnessPlanRouter(env, timeout, db, protectedRouter)
+	// Stats
+	NewStatsRouter(env, timeout, db, protectedRouter)
 }

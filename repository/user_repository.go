@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"time"
 
 	"github.com/zhengshui/flow-link-server/domain"
 	"github.com/zhengshui/flow-link-server/mongo"
@@ -69,4 +70,39 @@ func (ur *userRepository) GetByID(c context.Context, id string) (domain.User, er
 
 	err = collection.FindOne(c, bson.M{"_id": idHex}).Decode(&user)
 	return user, err
+}
+
+func (ur *userRepository) GetByUsername(c context.Context, username string) (domain.User, error) {
+	collection := ur.database.Collection(ur.collection)
+	var user domain.User
+	err := collection.FindOne(c, bson.M{"username": username}).Decode(&user)
+	return user, err
+}
+
+func (ur *userRepository) Update(c context.Context, id string, user *domain.User) error {
+	collection := ur.database.Collection(ur.collection)
+
+	idHex, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return err
+	}
+
+	update := bson.M{
+		"$set": bson.M{
+			"nickname":     user.Nickname,
+			"avatarUrl":    user.AvatarUrl,
+			"email":        user.Email,
+			"phone":        user.Phone,
+			"gender":       user.Gender,
+			"age":          user.Age,
+			"height":       user.Height,
+			"weight":       user.Weight,
+			"targetWeight": user.TargetWeight,
+			"fitnessGoal":  user.FitnessGoal,
+			"updatedAt":    primitive.NewDateTimeFromTime(time.Now()),
+		},
+	}
+
+	_, err = collection.UpdateOne(c, bson.M{"_id": idHex}, update)
+	return err
 }

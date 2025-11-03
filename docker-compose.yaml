@@ -15,11 +15,13 @@ services:
       - mongodb
 
   mongodb:
-    image: mongo:6.0
+    image: mongo:8.0
     container_name: mongodb
     restart: unless-stopped
     env_file: .env
     environment:
+      - http_proxy=http://127.0.0.1:7897
+      - https_proxy=http://127.0.0.1:7897
       - MONGO_INITDB_ROOT_USERNAME=$DB_USER
       - MONGO_INITDB_ROOT_PASSWORD=$DB_PASS
     ports:

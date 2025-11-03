@@ -2,6 +2,7 @@ package controller
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/zhengshui/flow-link-server/bootstrap"
 	"github.com/zhengshui/flow-link-server/domain"
@@ -18,58 +19,67 @@ type SignupController struct {
 func (sc *SignupController) Signup(c *gin.Context) {
 	var request domain.SignupRequest
 
-	err := c.ShouldBind(&request)
+	err := c.ShouldBindJSON(&request)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, domain.ErrorResponse{Message: err.Error()})
+		c.JSON(http.StatusBadRequest, domain.NewErrorResponse(400, err.Error()))
 		return
 	}
 
-	_, err = sc.SignupUsecase.GetUserByEmail(c, request.Email)
+	// 检查用户名是否已存在
+	_, err = sc.SignupUsecase.GetUserByUsername(c, request.Username)
 	if err == nil {
-		c.JSON(http.StatusConflict, domain.ErrorResponse{Message: "User already exists with the given email"})
+		c.JSON(http.StatusConflict, domain.NewErrorResponse(409, "用户名已存在"))
 		return
 	}
 
+	// 加密密码
 	encryptedPassword, err := bcrypt.GenerateFromPassword(
 		[]byte(request.Password),
 		bcrypt.DefaultCost,
 	)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, domain.ErrorResponse{Message: err.Error()})
+		c.JSON(http.StatusInternalServerError, domain.NewErrorResponse(500, err.Error()))
 		return
 	}
 
-	request.Password = string(encryptedPassword)
-
+	// 创建用户
+	now := time.Now()
 	user := domain.User{
-		ID:       primitive.NewObjectID(),
-		Name:     request.Name,
-		Email:    request.Email,
-		Password: request.Password,
+		ID:           primitive.NewObjectID(),
+		Username:     request.Username,
+		Password:     string(encryptedPassword),
+		Nickname:     request.Nickname,
+		Email:        request.Email,
+		Phone:        request.Phone,
+		Gender:       request.Gender,
+		Age:          request.Age,
+		Height:       request.Height,
+		Weight:       request.Weight,
+		TargetWeight: request.TargetWeight,
+		FitnessGoal:  request.FitnessGoal,
+		Role:         "user",
+		JoinDate:     now.Format("2006-01-02"),
+		CreatedAt:    primitive.NewDateTimeFromTime(now),
+		UpdatedAt:    primitive.NewDateTimeFromTime(now),
 	}
 
 	err = sc.SignupUsecase.Create(c, &user)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, domain.ErrorResponse{Message: err.Error()})
+		c.JSON(http.StatusInternalServerError, domain.NewErrorResponse(500, err.Error()))
 		return
 	}
 
+	// 生成token
 	accessToken, err := sc.SignupUsecase.CreateAccessToken(&user, sc.Env.AccessTokenSecret, sc.Env.AccessTokenExpiryHour)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, domain.ErrorResponse{Message: err.Error()})
-		return
-	}
-
-	refreshToken, err := sc.SignupUsecase.CreateRefreshToken(&user, sc.Env.RefreshTokenSecret, sc.Env.RefreshTokenExpiryHour)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, domain.ErrorResponse{Message: err.Error()})
+		c.JSON(http.StatusInternalServerError, domain.NewErrorResponse(500, err.Error()))
 		return
 	}
 
 	signupResponse := domain.SignupResponse{
-		AccessToken:  accessToken,
-		RefreshToken: refreshToken,
+		Token: accessToken,
+		Role:  user.Role,
 	}
 
-	c.JSON(http.StatusOK, signupResponse)
+	c.JSON(http.StatusOK, domain.NewSuccessResponse(signupResponse))
 }

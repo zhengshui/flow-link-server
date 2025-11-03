@@ -18,5 +18,5 @@ func NewLoginRouter(env *bootstrap.Env, timeout time.Duration, db mongo.Database
 		LoginUsecase: usecase.NewLoginUsecase(ur, timeout),
 		Env:          env,
 	}
-	group.POST("/login", lc.Login)
+	group.POST("/auth/login", lc.Login)
 }
