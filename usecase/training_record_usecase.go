@@ -42,7 +42,6 @@ func (tu *trainingRecordUsecase) Create(c context.Context, userID string, reques
 		ID:             primitive.NewObjectID(),
 		UserID:         userObjectID,
 		Title:          request.Title,
-		Date:           request.Date,
 		StartTime:      request.StartTime,
 		EndTime:        request.EndTime,
 		Duration:       request.Duration,
@@ -119,9 +118,6 @@ func (tu *trainingRecordUsecase) Update(c context.Context, userID, recordID stri
 	// Update fields if provided
 	if request.Title != "" {
 		record.Title = request.Title
-	}
-	if request.Date != "" {
-		record.Date = request.Date
 	}
 	if request.StartTime != "" {
 		record.StartTime = request.StartTime

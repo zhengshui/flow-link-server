@@ -56,7 +56,15 @@ func (tr *trainingRecordRepository) GetByUserID(c context.Context, userID string
 	filter := bson.M{"userId": userIDHex}
 
 	if startDate != "" && endDate != "" {
-		filter["date"] = bson.M{
+		// 如果日期格式是 YYYY-MM-DD，补充时间部分以确保查询正确
+		if len(startDate) == 10 {
+			startDate = startDate + " 00:00:00"
+		}
+		if len(endDate) == 10 {
+			endDate = endDate + " 23:59:59"
+		}
+
+		filter["startTime"] = bson.M{
 			"$gte": startDate,
 			"$lte": endDate,
 		}
@@ -75,7 +83,7 @@ func (tr *trainingRecordRepository) GetByUserID(c context.Context, userID string
 	// 分页查询
 	skip := (page - 1) * pageSize
 	opts := options.Find().
-		SetSort(bson.D{{Key: "date", Value: -1}, {Key: "createdAt", Value: -1}}).
+		SetSort(bson.D{{Key: "startTime", Value: -1}, {Key: "createdAt", Value: -1}}).
 		SetSkip(int64(skip)).
 		SetLimit(int64(pageSize))
 
@@ -106,7 +114,6 @@ func (tr *trainingRecordRepository) Update(c context.Context, id string, record 
 	update := bson.M{
 		"$set": bson.M{
 			"title":          record.Title,
-			"date":           record.Date,
 			"startTime":      record.StartTime,
 			"endTime":        record.EndTime,
 			"duration":       record.Duration,

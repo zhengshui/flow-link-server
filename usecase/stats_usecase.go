@@ -81,13 +81,19 @@ func (su *statsUsecase) GetTrainingStats(c context.Context, userID string, perio
 		totalSets += record.TotalSets
 		totalCalories += record.CaloriesBurned
 
+		// Extract date from startTime (YYYY-MM-DD HH:mm:ss -> YYYY-MM-DD)
+		recordDate := record.StartTime
+		if len(record.StartTime) >= 10 {
+			recordDate = record.StartTime[:10]
+		}
+
 		// Track daily stats
-		if _, exists := dailyStatsMap[record.Date]; !exists {
-			dailyStatsMap[record.Date] = &domain.DailyStats{
-				Date: record.Date,
+		if _, exists := dailyStatsMap[recordDate]; !exists {
+			dailyStatsMap[recordDate] = &domain.DailyStats{
+				Date: recordDate,
 			}
 		}
-		dailyStats := dailyStatsMap[record.Date]
+		dailyStats := dailyStatsMap[recordDate]
 		dailyStats.TrainingCount++
 		dailyStats.Duration += record.Duration
 		dailyStats.Weight += record.TotalWeight
@@ -233,18 +239,24 @@ func (su *statsUsecase) GetPersonalRecords(c context.Context, userID string) ([]
 				continue
 			}
 
+			// Extract date from startTime (YYYY-MM-DD HH:mm:ss -> YYYY-MM-DD)
+			recordDate := record.StartTime
+			if len(record.StartTime) >= 10 {
+				recordDate = record.StartTime[:10]
+			}
+
 			// Check if this is a new PR for this exercise
 			if pr, exists := prMap[exercise.Name]; exists {
 				if exercise.Weight > pr.MaxWeight {
 					pr.MaxWeight = exercise.Weight
-					pr.Date = record.Date
+					pr.Date = recordDate
 					pr.RecordID = 0 // Would need to store exercise ID to populate this
 				}
 			} else {
 				prMap[exercise.Name] = &domain.PersonalRecord{
 					ExerciseName: exercise.Name,
 					MaxWeight:    exercise.Weight,
-					Date:         record.Date,
+					Date:         recordDate,
 					RecordID:     0,
 				}
 			}
@@ -297,7 +309,13 @@ func (su *statsUsecase) GetCalendar(c context.Context, userID string, year, mont
 
 	// Fill in training data
 	for _, record := range records {
-		if day, exists := dateMap[record.Date]; exists {
+		// Extract date from startTime (YYYY-MM-DD HH:mm:ss -> YYYY-MM-DD)
+		recordDate := record.StartTime
+		if len(record.StartTime) >= 10 {
+			recordDate = record.StartTime[:10]
+		}
+
+		if day, exists := dateMap[recordDate]; exists {
 			day.HasTraining = true
 			day.TrainingCount++
 			day.TotalDuration += record.Duration

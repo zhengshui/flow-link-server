@@ -28,9 +28,8 @@ type TrainingRecord struct {
 	ID             primitive.ObjectID `bson:"_id" json:"id"`
 	UserID         primitive.ObjectID `bson:"userId" json:"userId"`
 	Title          string             `bson:"title" json:"title"`
-	Date           string             `bson:"date" json:"date"`                     // YYYY-MM-DD
-	StartTime      string             `bson:"startTime" json:"startTime"`           // HH:mm
-	EndTime        string             `bson:"endTime" json:"endTime"`               // HH:mm
+	StartTime      string             `bson:"startTime" json:"startTime"`           // 开始时间 YYYY-MM-DD HH:mm:ss
+	EndTime        string             `bson:"endTime" json:"endTime"`               // 结束时间 YYYY-MM-DD HH:mm:ss
 	Duration       int                `bson:"duration" json:"duration"`             // 总时长(分钟)
 	Exercises      []Exercise         `bson:"exercises" json:"exercises"`           // 训练项目列表
 	TotalWeight    float64            `bson:"totalWeight" json:"totalWeight"`       // 总重量(kg)
@@ -55,9 +54,8 @@ type TrainingRecordRepository interface {
 // CreateTrainingRecordRequest 创建训练记录请求
 type CreateTrainingRecordRequest struct {
 	Title          string     `json:"title" binding:"required"`
-	Date           string     `json:"date" binding:"required"`
-	StartTime      string     `json:"startTime" binding:"required"`
-	EndTime        string     `json:"endTime" binding:"required"`
+	StartTime      string     `json:"startTime" binding:"required"` // YYYY-MM-DD HH:mm:ss
+	EndTime        string     `json:"endTime" binding:"required"`   // YYYY-MM-DD HH:mm:ss
 	Duration       int        `json:"duration" binding:"required"`
 	Exercises      []Exercise `json:"exercises" binding:"required"`
 	TotalWeight    float64    `json:"totalWeight"`
@@ -71,9 +69,8 @@ type CreateTrainingRecordRequest struct {
 // UpdateTrainingRecordRequest 更新训练记录请求
 type UpdateTrainingRecordRequest struct {
 	Title          string     `json:"title"`
-	Date           string     `json:"date"`
-	StartTime      string     `json:"startTime"`
-	EndTime        string     `json:"endTime"`
+	StartTime      string     `json:"startTime"` // YYYY-MM-DD HH:mm:ss
+	EndTime        string     `json:"endTime"`   // YYYY-MM-DD HH:mm:ss
 	Duration       int        `json:"duration"`
 	Exercises      []Exercise `json:"exercises"`
 	TotalWeight    float64    `json:"totalWeight"`
