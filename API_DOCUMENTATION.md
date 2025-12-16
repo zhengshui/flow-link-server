@@ -15,7 +15,8 @@
 5. [健身计划接口](#健身计划接口)
 6. [计划模板接口](#计划模板接口)
 7. [统计数据接口](#统计数据接口)
-8. [数据模型](#数据模型)
+8. [反馈接口](#反馈接口)
+9. [数据模型](#数据模型)
 
 ---
 
@@ -215,13 +216,9 @@ Authorization: Bearer {access_token}
 **请求参数** (Query):
 - `page`: 页码（默认1）
 - `pageSize`: 每页条数（默认20）
-- `startDate`: 开始日期（可选，格式：YYYY-MM-DD 或 YYYY-MM-DD HH:mm:ss）
-- `endDate`: 结束日期（可选，格式：YYYY-MM-DD 或 YYYY-MM-DD HH:mm:ss）
+- `startDate`: 开始日期（可选，格式：YYYY-MM-DD）
+- `endDate`: 结束日期（可选，格式：YYYY-MM-DD）
 - `planId`: 关联计划ID（可选）
-
-**说明**：
-- 如果 `startDate` 使用 YYYY-MM-DD 格式，自动补充为当天 00:00:00
-- 如果 `endDate` 使用 YYYY-MM-DD 格式，自动补充为当天 23:59:59
 
 **响应示例**:
 ```json
@@ -237,6 +234,7 @@ Authorization: Bearer {access_token}
         "id": 1,
         "userId": 1,
         "title": "腿部训练日",
+        "date": "2025-11-01",
         "startTime": "2025-11-01 09:00:00",
         "endTime": "2025-11-01 10:30:00",
         "duration": 90,
@@ -291,11 +289,10 @@ Authorization: Bearer {access_token}
 **请求参数**:
 ```json
 {
-  "title": "string",                 // 训练标题（必填）
-  "startTime": "string",             // 开始时间 (YYYY-MM-DD HH:mm:ss)（必填）
-  "endTime": "string",               // 结束时间 (YYYY-MM-DD HH:mm:ss)（必填）
-  "duration": 90,                    // 总时长（分钟）（必填）
-  "exercises": [                     // 训练项目列表（必填）
+  "title": "string",                 // 训练标题
+  "startTime": "string",             // 开始时间 (YYYY-MM-DD HH:mm:ss)
+  "endTime": "string",               // 结束时间 (YYYY-MM-DD HH:mm:ss)
+  "exercises": [                     // 训练项目列表
     {
       "name": "string",              // 项目名称
       "sets": 4,                     // 组数
@@ -307,11 +304,11 @@ Authorization: Bearer {access_token}
       "duration": 20                 // 训练时长（分钟）
     }
   ],
-  "totalWeight": 5600,               // 总重量（kg）（可选）
-  "totalSets": 11,                   // 总组数（可选）
-  "caloriesBurned": 450,             // 消耗卡路里（可选）
-  "notes": "string",                 // 训练备注（可选）
-  "mood": "string",                  // 训练状态（优秀/良好/一般/疲劳）（可选）
+  "totalWeight": 5600,               // 总重量（kg）
+  "totalSets": 11,                   // 总组数
+  "caloriesBurned": 450,             // 消耗卡路里
+  "notes": "string",                 // 训练备注
+  "mood": "string",                  // 训练状态（优秀/良好/一般/疲劳）
   "planId": 1                        // 关联计划ID（可选，0表示无计划）
 }
 ```
@@ -816,7 +813,54 @@ Authorization: Bearer {access_token}
 
 ---
 
+## 反馈接口
+
+### 1. 提交用户反馈
+
+**接口**: `POST /api/feedback`
+
+**需要认证**: 是
+
+**请求参数**:
+```json
+{
+  "content": "string",         // 反馈内容（必填，10-1000字符）
+  "type": "string",            // 反馈类型：建议/问题/其他（可选，默认：建议）
+  "contactInfo": "string"      // 联系方式（可选，方便回复）
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "message": "反馈提交成功",
+  "data": {
+    "id": 1,
+    "createdAt": "2025-12-16 10:30:00"
+  }
+}
+```
+
+**说明**: 用户提交的反馈会由后台管理员审核和处理，感谢您的宝贵意见！
+
+---
+
 ## 数据模型
+
+### Feedback (用户反馈)
+
+```typescript
+{
+  id: number                      // 反馈ID
+  userId: number                  // 用户ID
+  content: string                 // 反馈内容
+  type: string                    // 反馈类型（建议/问题/其他）
+  contactInfo: string             // 联系方式（可选）
+  status: string                  // 处理状态（待处理/处理中/已处理）
+  createdAt: string               // 创建时间
+}
+```
 
 ### TrainingRecord (训练记录)
 
@@ -995,6 +1039,20 @@ Authorization: Bearer {access_token}
 
 ## 版本历史
 
+### v1.2.0 (2025-12-16)
+
+**新增功能** - 用户反馈
+
+1. **新增用户反馈接口** (`POST /api/feedback`)
+   - 支持用户提交意见反馈
+   - 支持反馈类型分类（建议/问题/其他）
+   - 可选联系方式字段，方便回复用户
+
+2. **新增 Feedback 数据模型**
+   - 包含反馈内容、类型、状态等字段
+
+---
+
 ### v1.1.0 (2025-11-03)
 
 **重要更新** - 用户模型完善
@@ -1028,6 +1086,9 @@ Authorization: Bearer {access_token}
 ### v1.0.0 (2025-11-01)
 
 - 初始版本，包含核心功能接口
+
+### v1.0.1 (202-12-16)
+- 增加反馈中心相关的接口
 
 ---
 

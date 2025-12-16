@@ -32,4 +32,6 @@ func Setup(env *bootstrap.Env, timeout time.Duration, db mongo.Database, gin *gi
 	NewFitnessPlanRouter(env, timeout, db, protectedRouter)
 	// Stats
 	NewStatsRouter(env, timeout, db, protectedRouter)
+	// Feedback
+	NewFeedbackRouter(env, timeout, db, protectedRouter)
 }
