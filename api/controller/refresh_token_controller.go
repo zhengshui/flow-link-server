@@ -3,9 +3,9 @@ package controller
 import (
 	"net/http"
 
+	"github.com/gin-gonic/gin"
 	"github.com/zhengshui/flow-link-server/bootstrap"
 	"github.com/zhengshui/flow-link-server/domain"
-	"github.com/gin-gonic/gin"
 )
 
 type RefreshTokenController struct {
@@ -24,7 +24,7 @@ type RefreshTokenController struct {
 // @Failure      400 {object} domain.ErrorResponse "请求参数错误"
 // @Failure      401 {object} domain.ErrorResponse "令牌无效或已过期"
 // @Failure      500 {object} domain.ErrorResponse "服务器错误"
-// @Router       /refresh [post]
+// @Router       /api/auth/refresh [post]
 func (rtc *RefreshTokenController) RefreshToken(c *gin.Context) {
 	var request domain.RefreshTokenRequest
 

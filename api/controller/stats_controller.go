@@ -25,7 +25,7 @@ type StatsController struct {
 // @Success      200 {object} domain.SuccessResponse{data=domain.TrainingStats} "获取成功"
 // @Failure      401 {object} domain.ErrorResponse "未授权访问"
 // @Failure      500 {object} domain.ErrorResponse "服务器错误"
-// @Router       /stats/training [get]
+// @Router       /api/stats/training [get]
 func (sc *StatsController) GetTrainingStats(c *gin.Context) {
 	userIDValue, exists := c.Get("x-user-id")
 	if !exists {
@@ -64,7 +64,7 @@ func (sc *StatsController) GetTrainingStats(c *gin.Context) {
 // @Success      200 {object} domain.SuccessResponse{data=[]domain.MuscleGroupStats} "获取成功"
 // @Failure      401 {object} domain.ErrorResponse "未授权访问"
 // @Failure      500 {object} domain.ErrorResponse "服务器错误"
-// @Router       /stats/muscle-groups [get]
+// @Router       /api/stats/muscle-groups [get]
 func (sc *StatsController) GetMuscleGroupStats(c *gin.Context) {
 	userIDValue, exists := c.Get("x-user-id")
 	if !exists {
@@ -100,7 +100,7 @@ func (sc *StatsController) GetMuscleGroupStats(c *gin.Context) {
 // @Success      200 {object} domain.SuccessResponse{data=[]domain.PersonalRecord} "获取成功"
 // @Failure      401 {object} domain.ErrorResponse "未授权访问"
 // @Failure      500 {object} domain.ErrorResponse "服务器错误"
-// @Router       /stats/personal-records [get]
+// @Router       /api/stats/personal-records [get]
 func (sc *StatsController) GetPersonalRecords(c *gin.Context) {
 	userIDValue, exists := c.Get("x-user-id")
 	if !exists {
@@ -135,7 +135,7 @@ func (sc *StatsController) GetPersonalRecords(c *gin.Context) {
 // @Success      200 {object} domain.SuccessResponse{data=[]domain.CalendarDay} "获取成功"
 // @Failure      401 {object} domain.ErrorResponse "未授权访问"
 // @Failure      500 {object} domain.ErrorResponse "服务器错误"
-// @Router       /stats/calendar [get]
+// @Router       /api/stats/calendar [get]
 func (sc *StatsController) GetCalendar(c *gin.Context) {
 	userIDValue, exists := c.Get("x-user-id")
 	if !exists {

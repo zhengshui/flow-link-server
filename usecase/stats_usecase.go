@@ -76,15 +76,29 @@ func (su *statsUsecase) GetTrainingStats(c context.Context, userID string, perio
 	dailyStatsMap := make(map[string]*domain.DailyStats)
 
 	for _, record := range records {
-		totalDuration += record.Duration
-		totalWeight += record.TotalWeight
-		totalSets += record.TotalSets
-		totalCalories += record.CaloriesBurned
+		// 安全地累加指针类型的值
+		if record.Duration != nil {
+			totalDuration += *record.Duration
+		}
+		if record.TotalWeight != nil {
+			totalWeight += *record.TotalWeight
+		}
+		if record.TotalSets != nil {
+			totalSets += *record.TotalSets
+		}
+		if record.CaloriesBurned != nil {
+			totalCalories += *record.CaloriesBurned
+		}
 
 		// Extract date from startTime (YYYY-MM-DD HH:mm:ss -> YYYY-MM-DD)
-		recordDate := record.StartTime
-		if len(record.StartTime) >= 10 {
-			recordDate = record.StartTime[:10]
+		recordDate := ""
+		if record.StartTime != nil && len(*record.StartTime) >= 10 {
+			recordDate = (*record.StartTime)[:10]
+		}
+
+		// 跳过没有有效日期的记录
+		if recordDate == "" {
+			continue
 		}
 
 		// Track daily stats
@@ -95,15 +109,23 @@ func (su *statsUsecase) GetTrainingStats(c context.Context, userID string, perio
 		}
 		dailyStats := dailyStatsMap[recordDate]
 		dailyStats.TrainingCount++
-		dailyStats.Duration += record.Duration
-		dailyStats.Weight += record.TotalWeight
-		dailyStats.Sets += record.TotalSets
-		dailyStats.Calories += record.CaloriesBurned
+		if record.Duration != nil {
+			dailyStats.Duration += *record.Duration
+		}
+		if record.TotalWeight != nil {
+			dailyStats.Weight += *record.TotalWeight
+		}
+		if record.TotalSets != nil {
+			dailyStats.Sets += *record.TotalSets
+		}
+		if record.CaloriesBurned != nil {
+			dailyStats.Calories += *record.CaloriesBurned
+		}
 
 		// Track muscle groups and exercises
 		for _, exercise := range record.Exercises {
-			if exercise.MuscleGroup != "" {
-				muscleGroupCount[exercise.MuscleGroup]++
+			if exercise.MuscleGroup != nil && *exercise.MuscleGroup != "" {
+				muscleGroupCount[*exercise.MuscleGroup]++
 			}
 			if exercise.Name != "" {
 				exerciseCount[exercise.Name]++
@@ -189,15 +211,29 @@ func (su *statsUsecase) GetMuscleGroupStats(c context.Context, userID string, pe
 
 	for _, record := range records {
 		for _, exercise := range record.Exercises {
-			if exercise.MuscleGroup != "" {
-				if _, exists := muscleGroupData[exercise.MuscleGroup]; !exists {
-					muscleGroupData[exercise.MuscleGroup] = &domain.MuscleGroupStats{
-						MuscleGroup: exercise.MuscleGroup,
+			if exercise.MuscleGroup != nil && *exercise.MuscleGroup != "" {
+				muscleGroup := *exercise.MuscleGroup
+				if _, exists := muscleGroupData[muscleGroup]; !exists {
+					muscleGroupData[muscleGroup] = &domain.MuscleGroupStats{
+						MuscleGroup: muscleGroup,
 					}
 				}
-				stats := muscleGroupData[exercise.MuscleGroup]
+				stats := muscleGroupData[muscleGroup]
 				stats.TrainingCount++
-				stats.TotalWeight += exercise.Weight * float64(exercise.Sets*exercise.Reps)
+				// 安全计算总重量：weight * sets * reps
+				weight := 0.0
+				sets := 0
+				reps := 0
+				if exercise.Weight != nil {
+					weight = *exercise.Weight
+				}
+				if exercise.Sets != nil {
+					sets = *exercise.Sets
+				}
+				if exercise.Reps != nil {
+					reps = *exercise.Reps
+				}
+				stats.TotalWeight += weight * float64(sets*reps)
 				totalCount++
 			}
 		}
@@ -240,22 +276,28 @@ func (su *statsUsecase) GetPersonalRecords(c context.Context, userID string) ([]
 			}
 
 			// Extract date from startTime (YYYY-MM-DD HH:mm:ss -> YYYY-MM-DD)
-			recordDate := record.StartTime
-			if len(record.StartTime) >= 10 {
-				recordDate = record.StartTime[:10]
+			recordDate := ""
+			if record.StartTime != nil && len(*record.StartTime) >= 10 {
+				recordDate = (*record.StartTime)[:10]
+			}
+
+			// 获取重量，如果为空则跳过
+			weight := 0.0
+			if exercise.Weight != nil {
+				weight = *exercise.Weight
 			}
 
 			// Check if this is a new PR for this exercise
 			if pr, exists := prMap[exercise.Name]; exists {
-				if exercise.Weight > pr.MaxWeight {
-					pr.MaxWeight = exercise.Weight
+				if weight > pr.MaxWeight {
+					pr.MaxWeight = weight
 					pr.Date = recordDate
 					pr.RecordID = 0 // Would need to store exercise ID to populate this
 				}
 			} else {
 				prMap[exercise.Name] = &domain.PersonalRecord{
 					ExerciseName: exercise.Name,
-					MaxWeight:    exercise.Weight,
+					MaxWeight:    weight,
 					Date:         recordDate,
 					RecordID:     0,
 				}
@@ -310,15 +352,21 @@ func (su *statsUsecase) GetCalendar(c context.Context, userID string, year, mont
 	// Fill in training data
 	for _, record := range records {
 		// Extract date from startTime (YYYY-MM-DD HH:mm:ss -> YYYY-MM-DD)
-		recordDate := record.StartTime
-		if len(record.StartTime) >= 10 {
-			recordDate = record.StartTime[:10]
+		recordDate := ""
+		if record.StartTime != nil && len(*record.StartTime) >= 10 {
+			recordDate = (*record.StartTime)[:10]
+		}
+
+		if recordDate == "" {
+			continue
 		}
 
 		if day, exists := dateMap[recordDate]; exists {
 			day.HasTraining = true
 			day.TrainingCount++
-			day.TotalDuration += record.Duration
+			if record.Duration != nil {
+				day.TotalDuration += *record.Duration
+			}
 		}
 	}
 

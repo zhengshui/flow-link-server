@@ -21,7 +21,7 @@ type UserInfoController struct {
 // @Success      200 {object} domain.SuccessResponse{data=domain.UserInfoResponse} "获取成功"
 // @Failure      401 {object} domain.ErrorResponse "未授权访问"
 // @Failure      404 {object} domain.ErrorResponse "用户不存在"
-// @Router       /user/info [get]
+// @Router       /api/user/info [get]
 func (uc *UserInfoController) GetUserInfo(c *gin.Context) {
 	userIDValue, exists := c.Get("x-user-id")
 	if !exists {
@@ -73,7 +73,7 @@ func (uc *UserInfoController) GetUserInfo(c *gin.Context) {
 // @Failure      400 {object} domain.ErrorResponse "请求参数错误"
 // @Failure      401 {object} domain.ErrorResponse "未授权访问"
 // @Failure      500 {object} domain.ErrorResponse "服务器错误"
-// @Router       /user/info [put]
+// @Router       /api/user/info [put]
 func (uc *UserInfoController) UpdateUserInfo(c *gin.Context) {
 	userIDValue, exists := c.Get("x-user-id")
 	if !exists {

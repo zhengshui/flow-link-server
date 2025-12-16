@@ -66,11 +66,10 @@ definitions:
     properties:
       caloriesBurned:
         type: integer
-      date:
-        type: string
       duration:
         type: integer
       endTime:
+        description: YYYY-MM-DD HH:mm:ss
         type: string
       exercises:
         items:
@@ -83,6 +82,7 @@ definitions:
       planId:
         type: integer
       startTime:
+        description: YYYY-MM-DD HH:mm:ss
         type: string
       title:
         type: string
@@ -91,7 +91,6 @@ definitions:
       totalWeight:
         type: number
     required:
-    - date
     - duration
     - endTime
     - exercises
@@ -402,14 +401,11 @@ definitions:
         type: integer
       createdAt:
         type: string
-      date:
-        description: YYYY-MM-DD
-        type: string
       duration:
         description: 总时长(分钟)
         type: integer
       endTime:
-        description: HH:mm
+        description: 结束时间 YYYY-MM-DD HH:mm:ss
         type: string
       exercises:
         description: 训练项目列表
@@ -428,7 +424,7 @@ definitions:
         description: 关联计划ID(0表示无计划)
         type: integer
       startTime:
-        description: HH:mm
+        description: 开始时间 YYYY-MM-DD HH:mm:ss
         type: string
       title:
         type: string
@@ -500,11 +496,10 @@ definitions:
     properties:
       caloriesBurned:
         type: integer
-      date:
-        type: string
       duration:
         type: integer
       endTime:
+        description: YYYY-MM-DD HH:mm:ss
         type: string
       exercises:
         items:
@@ -517,6 +512,7 @@ definitions:
       planId:
         type: integer
       startTime:
+        description: YYYY-MM-DD HH:mm:ss
         type: string
       title:
         type: string
@@ -591,7 +587,119 @@ info:
   title: Flow Link Server API
   version: "1.0"
 paths:
-  /fitness-plans:
+  /api/auth/login:
+    post:
+      consumes:
+      - application/json
+      description: 用户通过用户名和密码登录，返回JWT token
+      parameters:
+      - description: 登录信息
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/domain.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 登录成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/domain.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/domain.LoginResponse'
+              type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "401":
+          description: 用户名或密码错误
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "404":
+          description: 用户不存在
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      summary: 用户登录
+      tags:
+      - 认证
+  /api/auth/refresh:
+    post:
+      consumes:
+      - application/json
+      description: 使用刷新令牌获取新的访问令牌和刷新令牌
+      parameters:
+      - description: 刷新令牌
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/domain.RefreshTokenRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 刷新成功
+          schema:
+            $ref: '#/definitions/domain.RefreshTokenResponse'
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "401":
+          description: 令牌无效或已过期
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "500":
+          description: 服务器错误
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      summary: 刷新访问令牌
+      tags:
+      - 认证
+  /api/auth/register:
+    post:
+      consumes:
+      - application/json
+      description: 注册新用户并返回JWT token
+      parameters:
+      - description: 注册信息
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/domain.SignupRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 注册成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/domain.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/domain.SignupResponse'
+              type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "409":
+          description: 用户名已存在
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "500":
+          description: 服务器错误
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      summary: 用户注册
+      tags:
+      - 认证
+  /api/plans:
     get:
       consumes:
       - application/json
@@ -636,7 +744,7 @@ paths:
       summary: 获取健身计划列表
       tags:
       - 健身计划
-  /fitness-plans/{planId}:
+  /api/plans/{planId}:
     delete:
       consumes:
       - application/json
@@ -716,7 +824,7 @@ paths:
       summary: 获取健身计划详情
       tags:
       - 健身计划
-  /fitness-plans/{planId}/complete-day:
+  /api/plans/{planId}/complete-day:
     post:
       consumes:
       - application/json
@@ -762,7 +870,7 @@ paths:
       summary: 完成训练日
       tags:
       - 健身计划
-  /fitness-plans/{planId}/status:
+  /api/plans/{planId}/status:
     put:
       consumes:
       - application/json
@@ -809,7 +917,7 @@ paths:
       summary: 更新计划状态
       tags:
       - 健身计划
-  /fitness-plans/custom:
+  /api/plans/custom:
     post:
       consumes:
       - application/json
@@ -850,7 +958,7 @@ paths:
       summary: 创建自定义健身计划
       tags:
       - 健身计划
-  /fitness-plans/from-template:
+  /api/plans/from-template:
     post:
       consumes:
       - application/json
@@ -891,196 +999,7 @@ paths:
       summary: 基于模板创建健身计划
       tags:
       - 健身计划
-  /login:
-    post:
-      consumes:
-      - application/json
-      description: 用户通过用户名和密码登录，返回JWT token
-      parameters:
-      - description: 登录信息
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/domain.LoginRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 登录成功
-          schema:
-            allOf:
-            - $ref: '#/definitions/domain.SuccessResponse'
-            - properties:
-                data:
-                  $ref: '#/definitions/domain.LoginResponse'
-              type: object
-        "400":
-          description: 请求参数错误
-          schema:
-            $ref: '#/definitions/domain.ErrorResponse'
-        "401":
-          description: 用户名或密码错误
-          schema:
-            $ref: '#/definitions/domain.ErrorResponse'
-        "404":
-          description: 用户不存在
-          schema:
-            $ref: '#/definitions/domain.ErrorResponse'
-      summary: 用户登录
-      tags:
-      - 认证
-  /plan-templates:
-    get:
-      consumes:
-      - application/json
-      description: 获取计划模板列表，支持分页和筛选（无需认证）
-      parameters:
-      - default: 1
-        description: 页码
-        in: query
-        name: page
-        type: integer
-      - default: 10
-        description: 每页数量
-        in: query
-        name: pageSize
-        type: integer
-      - description: 健身目标
-        in: query
-        name: goal
-        type: string
-      - description: 难度级别
-        in: query
-        name: level
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 获取成功
-          schema:
-            allOf:
-            - $ref: '#/definitions/domain.SuccessResponse'
-            - properties:
-                data:
-                  $ref: '#/definitions/domain.PaginatedData'
-              type: object
-        "500":
-          description: 服务器错误
-          schema:
-            $ref: '#/definitions/domain.ErrorResponse'
-      summary: 获取计划模板列表
-      tags:
-      - 计划模板
-  /plan-templates/{templateId}:
-    get:
-      consumes:
-      - application/json
-      description: 根据ID获取计划模板的详细信息（无需认证）
-      parameters:
-      - description: 模板ID
-        in: path
-        name: templateId
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 获取成功
-          schema:
-            allOf:
-            - $ref: '#/definitions/domain.SuccessResponse'
-            - properties:
-                data:
-                  $ref: '#/definitions/domain.PlanTemplate'
-              type: object
-        "400":
-          description: 模板ID不能为空
-          schema:
-            $ref: '#/definitions/domain.ErrorResponse'
-        "404":
-          description: 计划模板不存在
-          schema:
-            $ref: '#/definitions/domain.ErrorResponse'
-      summary: 获取计划模板详情
-      tags:
-      - 计划模板
-  /refresh:
-    post:
-      consumes:
-      - application/json
-      description: 使用刷新令牌获取新的访问令牌和刷新令牌
-      parameters:
-      - description: 刷新令牌
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/domain.RefreshTokenRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 刷新成功
-          schema:
-            $ref: '#/definitions/domain.RefreshTokenResponse'
-        "400":
-          description: 请求参数错误
-          schema:
-            $ref: '#/definitions/domain.ErrorResponse'
-        "401":
-          description: 令牌无效或已过期
-          schema:
-            $ref: '#/definitions/domain.ErrorResponse'
-        "500":
-          description: 服务器错误
-          schema:
-            $ref: '#/definitions/domain.ErrorResponse'
-      summary: 刷新访问令牌
-      tags:
-      - 认证
-  /signup:
-    post:
-      consumes:
-      - application/json
-      description: 注册新用户并返回JWT token
-      parameters:
-      - description: 注册信息
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/domain.SignupRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 注册成功
-          schema:
-            allOf:
-            - $ref: '#/definitions/domain.SuccessResponse'
-            - properties:
-                data:
-                  $ref: '#/definitions/domain.SignupResponse'
-              type: object
-        "400":
-          description: 请求参数错误
-          schema:
-            $ref: '#/definitions/domain.ErrorResponse'
-        "409":
-          description: 用户名已存在
-          schema:
-            $ref: '#/definitions/domain.ErrorResponse'
-        "500":
-          description: 服务器错误
-          schema:
-            $ref: '#/definitions/domain.ErrorResponse'
-      summary: 用户注册
-      tags:
-      - 认证
-  /stats/calendar:
+  /api/stats/calendar:
     get:
       consumes:
       - application/json
@@ -1123,7 +1042,7 @@ paths:
       summary: 获取日历数据
       tags:
       - 统计
-  /stats/muscle-groups:
+  /api/stats/muscle-groups:
     get:
       consumes:
       - application/json
@@ -1161,7 +1080,7 @@ paths:
       summary: 获取肌群训练统计
       tags:
       - 统计
-  /stats/personal-records:
+  /api/stats/personal-records:
     get:
       consumes:
       - application/json
@@ -1193,7 +1112,7 @@ paths:
       summary: 获取个人记录
       tags:
       - 统计
-  /stats/training:
+  /api/stats/training:
     get:
       consumes:
       - application/json
@@ -1239,7 +1158,84 @@ paths:
       summary: 获取训练统计
       tags:
       - 统计
-  /training-records:
+  /api/templates:
+    get:
+      consumes:
+      - application/json
+      description: 获取计划模板列表，支持分页和筛选（无需认证）
+      parameters:
+      - default: 1
+        description: 页码
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: 每页数量
+        in: query
+        name: pageSize
+        type: integer
+      - description: 健身目标
+        in: query
+        name: goal
+        type: string
+      - description: 难度级别
+        in: query
+        name: level
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/domain.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/domain.PaginatedData'
+              type: object
+        "500":
+          description: 服务器错误
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      summary: 获取计划模板列表
+      tags:
+      - 计划模板
+  /api/templates/{templateId}:
+    get:
+      consumes:
+      - application/json
+      description: 根据ID获取计划模板的详细信息（无需认证）
+      parameters:
+      - description: 模板ID
+        in: path
+        name: templateId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/domain.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/domain.PlanTemplate'
+              type: object
+        "400":
+          description: 模板ID不能为空
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "404":
+          description: 计划模板不存在
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      summary: 获取计划模板详情
+      tags:
+      - 计划模板
+  /api/training/records:
     get:
       consumes:
       - application/json
@@ -1334,7 +1330,7 @@ paths:
       summary: 创建训练记录
       tags:
       - 训练记录
-  /training-records/{recordId}:
+  /api/training/records/{recordId}:
     delete:
       consumes:
       - application/json
@@ -1460,7 +1456,7 @@ paths:
       summary: 更新训练记录
       tags:
       - 训练记录
-  /user/info:
+  /api/user/info:
     get:
       consumes:
       - application/json

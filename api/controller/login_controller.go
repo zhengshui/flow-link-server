@@ -5,9 +5,9 @@ import (
 
 	"golang.org/x/crypto/bcrypt"
 
+	"github.com/gin-gonic/gin"
 	"github.com/zhengshui/flow-link-server/bootstrap"
 	"github.com/zhengshui/flow-link-server/domain"
-	"github.com/gin-gonic/gin"
 )
 
 type LoginController struct {
@@ -26,7 +26,7 @@ type LoginController struct {
 // @Failure      400 {object} domain.ErrorResponse "请求参数错误"
 // @Failure      401 {object} domain.ErrorResponse "用户名或密码错误"
 // @Failure      404 {object} domain.ErrorResponse "用户不存在"
-// @Router       /login [post]
+// @Router       /api/auth/login [post]
 func (lc *LoginController) Login(c *gin.Context) {
 	var request domain.LoginRequest
 

@@ -115,38 +115,38 @@ func (tu *trainingRecordUsecase) Update(c context.Context, userID, recordID stri
 		return errors.New("unauthorized access to training record")
 	}
 
-	// Update fields if provided
-	if request.Title != "" {
-		record.Title = request.Title
+	// Update fields if provided (指针不为nil时更新)
+	if request.Title != nil {
+		record.Title = *request.Title
 	}
-	if request.StartTime != "" {
+	if request.StartTime != nil {
 		record.StartTime = request.StartTime
 	}
-	if request.EndTime != "" {
+	if request.EndTime != nil {
 		record.EndTime = request.EndTime
 	}
-	if request.Duration > 0 {
+	if request.Duration != nil {
 		record.Duration = request.Duration
 	}
 	if request.Exercises != nil {
 		record.Exercises = request.Exercises
 	}
-	if request.TotalWeight >= 0 {
+	if request.TotalWeight != nil {
 		record.TotalWeight = request.TotalWeight
 	}
-	if request.TotalSets >= 0 {
+	if request.TotalSets != nil {
 		record.TotalSets = request.TotalSets
 	}
-	if request.CaloriesBurned >= 0 {
+	if request.CaloriesBurned != nil {
 		record.CaloriesBurned = request.CaloriesBurned
 	}
-	if request.Notes != "" {
+	if request.Notes != nil {
 		record.Notes = request.Notes
 	}
-	if request.Mood != "" {
+	if request.Mood != nil {
 		record.Mood = request.Mood
 	}
-	if request.PlanID >= 0 {
+	if request.PlanID != nil {
 		record.PlanID = request.PlanID
 	}
 

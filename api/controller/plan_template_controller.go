@@ -22,7 +22,7 @@ type PlanTemplateController struct {
 // @Success      200 {object} domain.SuccessResponse{data=domain.PlanTemplate} "获取成功"
 // @Failure      400 {object} domain.ErrorResponse "模板ID不能为空"
 // @Failure      404 {object} domain.ErrorResponse "计划模板不存在"
-// @Router       /plan-templates/{templateId} [get]
+// @Router       /api/templates/{templateId} [get]
 func (pc *PlanTemplateController) GetByID(c *gin.Context) {
 	templateID := c.Param("templateId")
 	if templateID == "" {
@@ -51,7 +51,7 @@ func (pc *PlanTemplateController) GetByID(c *gin.Context) {
 // @Param        level query string false "难度级别"
 // @Success      200 {object} domain.SuccessResponse{data=domain.PaginatedData} "获取成功"
 // @Failure      500 {object} domain.ErrorResponse "服务器错误"
-// @Router       /plan-templates [get]
+// @Router       /api/templates [get]
 func (pc *PlanTemplateController) GetList(c *gin.Context) {
 	// 解析分页参数
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))

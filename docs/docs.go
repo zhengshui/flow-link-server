@@ -24,7 +24,187 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/fitness-plans": {
+        "/api/auth/login": {
+            "post": {
+                "description": "用户通过用户名和密码登录，返回JWT token",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "认证"
+                ],
+                "summary": "用户登录",
+                "parameters": [
+                    {
+                        "description": "登录信息",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.LoginRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "登录成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/domain.SuccessResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/domain.LoginResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "请求参数错误",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "用户名或密码错误",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "用户不存在",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/auth/refresh": {
+            "post": {
+                "description": "使用刷新令牌获取新的访问令牌和刷新令牌",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "认证"
+                ],
+                "summary": "刷新访问令牌",
+                "parameters": [
+                    {
+                        "description": "刷新令牌",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.RefreshTokenRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "刷新成功",
+                        "schema": {
+                            "$ref": "#/definitions/domain.RefreshTokenResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "请求参数错误",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "令牌无效或已过期",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器错误",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/auth/register": {
+            "post": {
+                "description": "注册新用户并返回JWT token",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "认证"
+                ],
+                "summary": "用户注册",
+                "parameters": [
+                    {
+                        "description": "注册信息",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.SignupRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "注册成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/domain.SuccessResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/domain.SignupResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "请求参数错误",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ErrorResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "用户名已存在",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器错误",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/plans": {
             "get": {
                 "security": [
                     {
@@ -98,7 +278,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/fitness-plans/custom": {
+        "/api/plans/custom": {
             "post": {
                 "security": [
                     {
@@ -167,7 +347,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/fitness-plans/from-template": {
+        "/api/plans/from-template": {
             "post": {
                 "security": [
                     {
@@ -236,7 +416,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/fitness-plans/{planId}": {
+        "/api/plans/{planId}": {
             "get": {
                 "security": [
                     {
@@ -369,7 +549,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/fitness-plans/{planId}/complete-day": {
+        "/api/plans/{planId}/complete-day": {
             "post": {
                 "security": [
                     {
@@ -445,7 +625,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/fitness-plans/{planId}/status": {
+        "/api/plans/{planId}/status": {
             "put": {
                 "security": [
                     {
@@ -522,312 +702,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/login": {
-            "post": {
-                "description": "用户通过用户名和密码登录，返回JWT token",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "认证"
-                ],
-                "summary": "用户登录",
-                "parameters": [
-                    {
-                        "description": "登录信息",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/domain.LoginRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "登录成功",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/domain.SuccessResponse"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/domain.LoginResponse"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "400": {
-                        "description": "请求参数错误",
-                        "schema": {
-                            "$ref": "#/definitions/domain.ErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "用户名或密码错误",
-                        "schema": {
-                            "$ref": "#/definitions/domain.ErrorResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "用户不存在",
-                        "schema": {
-                            "$ref": "#/definitions/domain.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/plan-templates": {
-            "get": {
-                "description": "获取计划模板列表，支持分页和筛选（无需认证）",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "计划模板"
-                ],
-                "summary": "获取计划模板列表",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "default": 1,
-                        "description": "页码",
-                        "name": "page",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "default": 10,
-                        "description": "每页数量",
-                        "name": "pageSize",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "健身目标",
-                        "name": "goal",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "难度级别",
-                        "name": "level",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "获取成功",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/domain.SuccessResponse"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/domain.PaginatedData"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "500": {
-                        "description": "服务器错误",
-                        "schema": {
-                            "$ref": "#/definitions/domain.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/plan-templates/{templateId}": {
-            "get": {
-                "description": "根据ID获取计划模板的详细信息（无需认证）",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "计划模板"
-                ],
-                "summary": "获取计划模板详情",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "模板ID",
-                        "name": "templateId",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "获取成功",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/domain.SuccessResponse"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/domain.PlanTemplate"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "400": {
-                        "description": "模板ID不能为空",
-                        "schema": {
-                            "$ref": "#/definitions/domain.ErrorResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "计划模板不存在",
-                        "schema": {
-                            "$ref": "#/definitions/domain.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/refresh": {
-            "post": {
-                "description": "使用刷新令牌获取新的访问令牌和刷新令牌",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "认证"
-                ],
-                "summary": "刷新访问令牌",
-                "parameters": [
-                    {
-                        "description": "刷新令牌",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/domain.RefreshTokenRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "刷新成功",
-                        "schema": {
-                            "$ref": "#/definitions/domain.RefreshTokenResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "请求参数错误",
-                        "schema": {
-                            "$ref": "#/definitions/domain.ErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "令牌无效或已过期",
-                        "schema": {
-                            "$ref": "#/definitions/domain.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "服务器错误",
-                        "schema": {
-                            "$ref": "#/definitions/domain.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/signup": {
-            "post": {
-                "description": "注册新用户并返回JWT token",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "认证"
-                ],
-                "summary": "用户注册",
-                "parameters": [
-                    {
-                        "description": "注册信息",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/domain.SignupRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "注册成功",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/domain.SuccessResponse"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/domain.SignupResponse"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "400": {
-                        "description": "请求参数错误",
-                        "schema": {
-                            "$ref": "#/definitions/domain.ErrorResponse"
-                        }
-                    },
-                    "409": {
-                        "description": "用户名已存在",
-                        "schema": {
-                            "$ref": "#/definitions/domain.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "服务器错误",
-                        "schema": {
-                            "$ref": "#/definitions/domain.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/stats/calendar": {
+        "/api/stats/calendar": {
             "get": {
                 "security": [
                     {
@@ -898,7 +773,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/stats/muscle-groups": {
+        "/api/stats/muscle-groups": {
             "get": {
                 "security": [
                     {
@@ -962,7 +837,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/stats/personal-records": {
+        "/api/stats/personal-records": {
             "get": {
                 "security": [
                     {
@@ -1017,7 +892,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/stats/training": {
+        "/api/stats/training": {
             "get": {
                 "security": [
                     {
@@ -1092,7 +967,132 @@ const docTemplate = `{
                 }
             }
         },
-        "/training-records": {
+        "/api/templates": {
+            "get": {
+                "description": "获取计划模板列表，支持分页和筛选（无需认证）",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "计划模板"
+                ],
+                "summary": "获取计划模板列表",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "页码",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 10,
+                        "description": "每页数量",
+                        "name": "pageSize",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "健身目标",
+                        "name": "goal",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "难度级别",
+                        "name": "level",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "获取成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/domain.SuccessResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/domain.PaginatedData"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "服务器错误",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/templates/{templateId}": {
+            "get": {
+                "description": "根据ID获取计划模板的详细信息（无需认证）",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "计划模板"
+                ],
+                "summary": "获取计划模板详情",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "模板ID",
+                        "name": "templateId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "获取成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/domain.SuccessResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/domain.PlanTemplate"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "模板ID不能为空",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "计划模板不存在",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/training/records": {
             "get": {
                 "security": [
                     {
@@ -1247,7 +1247,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/training-records/{recordId}": {
+        "/api/training/records/{recordId}": {
             "get": {
                 "security": [
                     {
@@ -1455,7 +1455,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/user/info": {
+        "/api/user/info": {
             "get": {
                 "security": [
                     {
@@ -1670,7 +1670,6 @@ const docTemplate = `{
         "domain.CreateTrainingRecordRequest": {
             "type": "object",
             "required": [
-                "date",
                 "duration",
                 "endTime",
                 "exercises",
@@ -1681,13 +1680,11 @@ const docTemplate = `{
                 "caloriesBurned": {
                     "type": "integer"
                 },
-                "date": {
-                    "type": "string"
-                },
                 "duration": {
                     "type": "integer"
                 },
                 "endTime": {
+                    "description": "YYYY-MM-DD HH:mm:ss",
                     "type": "string"
                 },
                 "exercises": {
@@ -1706,6 +1703,7 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "startTime": {
+                    "description": "YYYY-MM-DD HH:mm:ss",
                     "type": "string"
                 },
                 "title": {
@@ -2153,16 +2151,12 @@ const docTemplate = `{
                 "createdAt": {
                     "type": "string"
                 },
-                "date": {
-                    "description": "YYYY-MM-DD",
-                    "type": "string"
-                },
                 "duration": {
                     "description": "总时长(分钟)",
                     "type": "integer"
                 },
                 "endTime": {
-                    "description": "HH:mm",
+                    "description": "结束时间 YYYY-MM-DD HH:mm:ss",
                     "type": "string"
                 },
                 "exercises": {
@@ -2188,7 +2182,7 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "startTime": {
-                    "description": "HH:mm",
+                    "description": "开始时间 YYYY-MM-DD HH:mm:ss",
                     "type": "string"
                 },
                 "title": {
@@ -2290,13 +2284,11 @@ const docTemplate = `{
                 "caloriesBurned": {
                     "type": "integer"
                 },
-                "date": {
-                    "type": "string"
-                },
                 "duration": {
                     "type": "integer"
                 },
                 "endTime": {
+                    "description": "YYYY-MM-DD HH:mm:ss",
                     "type": "string"
                 },
                 "exercises": {
@@ -2315,6 +2307,7 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "startTime": {
+                    "description": "YYYY-MM-DD HH:mm:ss",
                     "type": "string"
                 },
                 "title": {

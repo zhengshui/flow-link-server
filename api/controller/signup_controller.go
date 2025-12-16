@@ -4,9 +4,9 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	"github.com/zhengshui/flow-link-server/bootstrap"
 	"github.com/zhengshui/flow-link-server/domain"
-	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -27,7 +27,7 @@ type SignupController struct {
 // @Failure      400 {object} domain.ErrorResponse "请求参数错误"
 // @Failure      409 {object} domain.ErrorResponse "用户名已存在"
 // @Failure      500 {object} domain.ErrorResponse "服务器错误"
-// @Router       /signup [post]
+// @Router       /api/auth/register [post]
 func (sc *SignupController) Signup(c *gin.Context) {
 	var request domain.SignupRequest
 
