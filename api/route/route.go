@@ -3,15 +3,23 @@ package route
 import (
 	"time"
 
+	"github.com/gin-gonic/gin"
 	"github.com/zhengshui/flow-link-server/api/middleware"
 	"github.com/zhengshui/flow-link-server/bootstrap"
 	"github.com/zhengshui/flow-link-server/mongo"
-	"github.com/gin-gonic/gin"
 )
 
-func Setup(env *bootstrap.Env, timeout time.Duration, db mongo.Database, gin *gin.Engine) {
+func Setup(env *bootstrap.Env, timeout time.Duration, db mongo.Database, router *gin.Engine) {
+	// Health check endpoint (for Docker/K8s health probes)
+	router.GET("/health", func(c *gin.Context) {
+		c.JSON(200, gin.H{
+			"status":  "healthy",
+			"service": "flow-link-server",
+		})
+	})
+
 	// API group with /api prefix
-	apiGroup := gin.Group("/api")
+	apiGroup := router.Group("/api")
 
 	// Public APIs (no authentication required)
 	publicRouter := apiGroup.Group("")

@@ -39,6 +39,7 @@ go.work.sum
 .env.local
 .env.*.local
 *.env
+.env.production
 
 # IDE 和编辑器配置
 .idea/

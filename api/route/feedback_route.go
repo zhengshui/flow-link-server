@@ -19,4 +19,3 @@ func NewFeedbackRouter(env *bootstrap.Env, timeout time.Duration, db mongo.Datab
 	}
 	group.POST("/feedback", fc.CreateFeedback)
 }
-

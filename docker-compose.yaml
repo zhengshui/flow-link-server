@@ -1,33 +1,57 @@
-version: "3.8"
+# ============================================
+# 开发环境 Docker Compose 配置
+# 使用: docker-compose up -d
+# ============================================
 
 services:
   web:
     build:
       context: .
       dockerfile: Dockerfile
-    image: app
-    container_name: app
+    image: flow-link-server:dev
+    container_name: flow-link-server
     restart: unless-stopped
     env_file: .env
     ports:
-      - "$PORT:$PORT"
+      - "${PORT:-8080}:${PORT:-8080}"
     depends_on:
-      - mongodb
+      mongodb:
+        condition: service_healthy
+    networks:
+      - flow-link-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:${PORT:-8080}/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
 
   mongodb:
     image: mongo:8.0
-    container_name: mongodb
+    container_name: flow-link-mongodb
     restart: unless-stopped
-    env_file: .env
     environment:
-      - http_proxy=http://127.0.0.1:7897
-      - https_proxy=http://127.0.0.1:7897
-      - MONGO_INITDB_ROOT_USERNAME=$DB_USER
-      - MONGO_INITDB_ROOT_PASSWORD=$DB_PASS
+      MONGO_INITDB_ROOT_USERNAME: ${DB_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${DB_PASS}
     ports:
-      - "$DB_PORT:$DB_PORT"
+      # 开发环境暴露端口便于调试，生产环境应注释掉
+      - "127.0.0.1:${DB_PORT:-27017}:27017"
     volumes:
-      - dbdata:/data/db
+      - mongodb_data:/data/db
+      - mongodb_config:/data/configdb
+    networks:
+      - flow-link-network
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+networks:
+  flow-link-network:
+    driver: bridge
 
 volumes:
-  dbdata:
+  mongodb_data:
+  mongodb_config:
