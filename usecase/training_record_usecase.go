@@ -37,23 +37,34 @@ func (tu *trainingRecordUsecase) Create(c context.Context, userID string, reques
 		exercises = []domain.Exercise{}
 	}
 
+	// Convert planID string to ObjectID if provided
+	var planObjectID *primitive.ObjectID
+	if request.PlanID != nil && *request.PlanID != "" {
+		pid, err := primitive.ObjectIDFromHex(*request.PlanID)
+		if err == nil {
+			planObjectID = &pid
+		}
+	}
+
 	now := time.Now()
 	record := &domain.TrainingRecord{
-		ID:             primitive.NewObjectID(),
-		UserID:         userObjectID,
-		Title:          request.Title,
-		StartTime:      request.StartTime,
-		EndTime:        request.EndTime,
-		Duration:       request.Duration,
-		Exercises:      exercises,
-		TotalWeight:    request.TotalWeight,
-		TotalSets:      request.TotalSets,
-		CaloriesBurned: request.CaloriesBurned,
-		Notes:          request.Notes,
-		Mood:           request.Mood,
-		PlanID:         request.PlanID,
-		CreatedAt:      primitive.NewDateTimeFromTime(now),
-		UpdatedAt:      primitive.NewDateTimeFromTime(now),
+		ID:               primitive.NewObjectID(),
+		UserID:           userObjectID,
+		Title:            request.Title,
+		StartTime:        request.StartTime,
+		EndTime:          request.EndTime,
+		Duration:         request.Duration,
+		Exercises:        exercises,
+		TotalWeight:      request.TotalWeight,
+		TotalSets:        request.TotalSets,
+		CaloriesBurned:   request.CaloriesBurned,
+		Notes:            request.Notes,
+		Mood:             request.Mood,
+		PlanID:           planObjectID,
+		PlanDayID:        request.PlanDayID,
+		CompletionStatus: request.CompletionStatus,
+		CreatedAt:        primitive.NewDateTimeFromTime(now),
+		UpdatedAt:        primitive.NewDateTimeFromTime(now),
 	}
 
 	err = tu.trainingRecordRepository.Create(ctx, record)
@@ -146,8 +157,17 @@ func (tu *trainingRecordUsecase) Update(c context.Context, userID, recordID stri
 	if request.Mood != nil {
 		record.Mood = request.Mood
 	}
-	if request.PlanID != nil {
-		record.PlanID = request.PlanID
+	if request.PlanID != nil && *request.PlanID != "" {
+		pid, err := primitive.ObjectIDFromHex(*request.PlanID)
+		if err == nil {
+			record.PlanID = &pid
+		}
+	}
+	if request.PlanDayID != nil {
+		record.PlanDayID = request.PlanDayID
+	}
+	if request.CompletionStatus != nil {
+		record.CompletionStatus = request.CompletionStatus
 	}
 
 	record.UpdatedAt = primitive.NewDateTimeFromTime(time.Now())

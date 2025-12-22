@@ -23,9 +23,9 @@ type Feedback struct {
 
 // FeedbackRequest 创建反馈请求
 type FeedbackRequest struct {
-	Content     string `json:"content" binding:"required,min=10,max=1000"` // 反馈内容（必填，10-1000字符）
-	Type        string `json:"type"`                                       // 反馈类型：建议/问题/其他（可选，默认：建议）
-	ContactInfo string `json:"contactInfo"`                                // 联系方式（可选）
+	Content     string `json:"content" binding:"required,min=1,max=1000"` // 反馈内容（必填，10-1000字符）
+	Type        string `json:"type"`                                      // 反馈类型：建议/问题/其他（可选，默认：建议）
+	ContactInfo string `json:"contactInfo"`                               // 联系方式（可选）
 }
 
 // FeedbackResponse 创建反馈响应

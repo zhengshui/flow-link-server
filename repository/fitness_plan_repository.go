@@ -199,3 +199,123 @@ func (fp *fitnessPlanRepository) CompletePlanDay(c context.Context, id string, d
 	_, err = collection.UpdateOne(c, bson.M{"_id": idHex}, update)
 	return err
 }
+
+func (fp *fitnessPlanRepository) SkipPlanDay(c context.Context, id string, dayNumber int) error {
+	collection := fp.database.Collection(fp.collection)
+
+	idHex, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return err
+	}
+
+	// 添加dayNumber到skippedDays数组，如果不存在的话
+	update := bson.M{
+		"$addToSet": bson.M{
+			"skippedDays": dayNumber,
+		},
+		"$set": bson.M{
+			"updatedAt": primitive.NewDateTimeFromTime(time.Now()),
+		},
+	}
+
+	_, err = collection.UpdateOne(c, bson.M{"_id": idHex}, update)
+	if err != nil {
+		return err
+	}
+
+	// 获取更新后的计划，重新计算completionRate
+	var plan domain.FitnessPlan
+	err = collection.FindOne(c, bson.M{"_id": idHex}).Decode(&plan)
+	if err != nil {
+		return err
+	}
+
+	totalDays := plan.DurationWeeks * plan.TrainingDaysPerWeek
+	skippedDays := len(plan.SkippedDays)
+	completedDays := len(plan.CompletedDays)
+	// 完成率 = (已完成 / (总天数 - 跳过天数)) * 100
+	effectiveTotalDays := totalDays - skippedDays
+	completionRate := 0
+	if effectiveTotalDays > 0 {
+		completionRate = (completedDays * 100) / effectiveTotalDays
+	}
+
+	// 更新统计数据
+	update = bson.M{
+		"$set": bson.M{
+			"completionRate": completionRate,
+			"updatedAt":      primitive.NewDateTimeFromTime(time.Now()),
+		},
+	}
+
+	_, err = collection.UpdateOne(c, bson.M{"_id": idHex}, update)
+	return err
+}
+
+func (fp *fitnessPlanRepository) UpdateTrainingDay(c context.Context, id string, dayNumber int, exercises []domain.Exercise, notes string) error {
+	collection := fp.database.Collection(fp.collection)
+
+	idHex, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return err
+	}
+
+	// 获取当前计划
+	var plan domain.FitnessPlan
+	err = collection.FindOne(c, bson.M{"_id": idHex}).Decode(&plan)
+	if err != nil {
+		return err
+	}
+
+	// 更新 trainingDaysOverride
+	trainingDaysOverride := plan.TrainingDaysOverride
+	if trainingDaysOverride == nil {
+		trainingDaysOverride = []domain.TrainingDay{}
+	}
+
+	// 查找是否已存在该天的覆盖
+	found := false
+	for i, day := range trainingDaysOverride {
+		if day.DayNumber == dayNumber {
+			trainingDaysOverride[i].Exercises = exercises
+			if notes != "" {
+				trainingDaysOverride[i].Notes = notes
+			}
+			found = true
+			break
+		}
+	}
+
+	// 如果不存在，则添加新的覆盖
+	if !found {
+		// 从原始训练日中获取基础信息
+		var baseDayName string
+		var isRestDay bool
+		for _, day := range plan.TrainingDays {
+			if day.DayNumber == dayNumber {
+				baseDayName = day.DayName
+				isRestDay = day.IsRestDay
+				break
+			}
+		}
+		newDay := domain.TrainingDay{
+			DayNumber: dayNumber,
+			DayName:   baseDayName,
+			IsRestDay: isRestDay,
+			Exercises: exercises,
+			Notes:     notes,
+		}
+		trainingDaysOverride = append(trainingDaysOverride, newDay)
+	}
+
+	// 更新数据库
+	update := bson.M{
+		"$set": bson.M{
+			"trainingDaysOverride": trainingDaysOverride,
+			"updatedAt":            primitive.NewDateTimeFromTime(time.Now()),
+		},
+	}
+
+	_, err = collection.UpdateOne(c, bson.M{"_id": idHex}, update)
+	return err
+}

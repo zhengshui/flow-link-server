@@ -10,12 +10,14 @@ import (
 
 type statsUsecase struct {
 	trainingRecordRepository domain.TrainingRecordRepository
+	fitnessPlanRepository    domain.FitnessPlanRepository
 	contextTimeout           time.Duration
 }
 
-func NewStatsUsecase(trainingRecordRepository domain.TrainingRecordRepository, timeout time.Duration) domain.StatsUsecase {
+func NewStatsUsecase(trainingRecordRepository domain.TrainingRecordRepository, fitnessPlanRepository domain.FitnessPlanRepository, timeout time.Duration) domain.StatsUsecase {
 	return &statsUsecase{
 		trainingRecordRepository: trainingRecordRepository,
+		fitnessPlanRepository:    fitnessPlanRepository,
 		contextTimeout:           timeout,
 	}
 }
@@ -385,4 +387,163 @@ func (su *statsUsecase) GetCalendar(c context.Context, userID string, year, mont
 	}
 
 	return result, nil
+}
+
+func (su *statsUsecase) GetPlanStats(c context.Context, userID, planID, period string) (domain.PlanStats, error) {
+	ctx, cancel := context.WithTimeout(c, su.contextTimeout)
+	defer cancel()
+
+	// Get the plan
+	plan, err := su.fitnessPlanRepository.GetByID(ctx, planID)
+	if err != nil {
+		return domain.PlanStats{}, err
+	}
+
+	// Validate ownership
+	if plan.UserID.Hex() != userID {
+		return domain.PlanStats{}, fmt.Errorf("unauthorized access to fitness plan")
+	}
+
+	// Calculate date range based on period
+	now := time.Now()
+	var startDate, endDate string
+
+	switch period {
+	case "week":
+		startDate = now.AddDate(0, 0, -7).Format("2006-01-02")
+		endDate = now.Format("2006-01-02")
+	case "month":
+		startDate = now.AddDate(0, -1, 0).Format("2006-01-02")
+		endDate = now.Format("2006-01-02")
+	case "whole":
+		startDate = plan.StartDate
+		endDate = plan.EndDate
+	default:
+		startDate = now.AddDate(0, 0, -7).Format("2006-01-02")
+		endDate = now.Format("2006-01-02")
+		period = "week"
+	}
+
+	// Get training records for this plan within the period
+	// Note: We need to get records related to this plan
+	// For now, we use plan stats directly
+	totalDays := plan.DurationWeeks * plan.TrainingDaysPerWeek
+	completedDays := len(plan.CompletedDays)
+	skippedDays := len(plan.SkippedDays)
+
+	// Calculate completion rate
+	effectiveTotalDays := totalDays - skippedDays
+	completionRate := 0
+	if effectiveTotalDays > 0 {
+		completionRate = (completedDays * 100) / effectiveTotalDays
+	}
+
+	// Build trend data
+	trend := []domain.DailyStats{}
+
+	// Parse start date
+	planStartDate, err := time.Parse("2006-01-02", plan.StartDate)
+	if err == nil {
+		// Build daily trend for completed and skipped days
+		for i := 0; i < totalDays && i < 30; i++ { // Limit to 30 days
+			date := planStartDate.AddDate(0, 0, i).Format("2006-01-02")
+			dayNum := i + 1
+
+			// Check if day is completed or skipped
+			status := "pending"
+			for _, d := range plan.CompletedDays {
+				if d == dayNum {
+					status = "completed"
+					break
+				}
+			}
+			if status == "pending" {
+				for _, d := range plan.SkippedDays {
+					if d == dayNum {
+						status = "skipped"
+						break
+					}
+				}
+			}
+
+			trend = append(trend, domain.DailyStats{
+				Date:             date,
+				CompletionStatus: status,
+			})
+		}
+	}
+
+	stats := domain.PlanStats{
+		PlanID:         planID,
+		Period:         period,
+		StartDate:      startDate,
+		EndDate:        endDate,
+		CompletionRate: completionRate,
+		CompletedDays:  completedDays,
+		SkippedDays:    skippedDays,
+		TotalDuration:  plan.TotalDuration,
+		TotalWeight:    plan.TotalWeight,
+		TotalCalories:  plan.TotalCalories,
+		Trend:          trend,
+	}
+
+	return stats, nil
+}
+
+func (su *statsUsecase) GetPlanProgressList(c context.Context, userID, status string, page, pageSize int) ([]domain.PlanProgressSummary, int64, error) {
+	ctx, cancel := context.WithTimeout(c, su.contextTimeout)
+	defer cancel()
+
+	// Get user's plans
+	plans, total, err := su.fitnessPlanRepository.GetByUserID(ctx, userID, status, page, pageSize)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	// Build progress summaries
+	result := []domain.PlanProgressSummary{}
+	for _, plan := range plans {
+		totalDays := plan.DurationWeeks * plan.TrainingDaysPerWeek
+		completedDays := len(plan.CompletedDays)
+		skippedDays := len(plan.SkippedDays)
+
+		// Calculate completion rate
+		effectiveTotalDays := totalDays - skippedDays
+		completionRate := 0
+		if effectiveTotalDays > 0 {
+			completionRate = (completedDays * 100) / effectiveTotalDays
+		}
+
+		// Calculate current week and day
+		currentWeek := plan.CurrentWeek
+		currentDay := plan.CurrentDay
+		if plan.Status == "进行中" {
+			startDate, err := time.Parse("2006-01-02", plan.StartDate)
+			if err == nil {
+				daysSinceStart := int(time.Since(startDate).Hours() / 24)
+				if daysSinceStart >= 0 {
+					currentWeek = (daysSinceStart / 7) + 1
+					currentDay = (daysSinceStart % 7) + 1
+				}
+			}
+		}
+
+		summary := domain.PlanProgressSummary{
+			PlanID:         plan.ID.Hex(),
+			Name:           plan.Name,
+			Status:         plan.Status,
+			CompletionRate: completionRate,
+			CurrentWeek:    currentWeek,
+			CurrentDay:     currentDay,
+			EndDate:        plan.EndDate,
+		}
+		result = append(result, summary)
+	}
+
+	// Initialize empty array to avoid null in JSON
+	if result == nil {
+		result = []domain.PlanProgressSummary{}
+	}
+
+	return result, total, nil
 }

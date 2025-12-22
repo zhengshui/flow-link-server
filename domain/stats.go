@@ -4,12 +4,13 @@ import "context"
 
 // DailyStats 每日统计
 type DailyStats struct {
-	Date          string  `json:"date"`          // 日期 YYYY-MM-DD
-	TrainingCount int     `json:"trainingCount"` // 当日训练次数
-	Duration      int     `json:"duration"`      // 当日训练时长
-	Weight        float64 `json:"weight"`        // 当日总重量
-	Sets          int     `json:"sets"`          // 当日总组数
-	Calories      int     `json:"calories"`      // 当日消耗卡路里
+	Date             string  `json:"date"`                       // 日期 YYYY-MM-DD
+	TrainingCount    int     `json:"trainingCount"`              // 当日训练次数
+	Duration         int     `json:"duration"`                   // 当日训练时长
+	Weight           float64 `json:"weight"`                     // 当日总重量
+	Sets             int     `json:"sets"`                       // 当日总组数
+	Calories         int     `json:"calories"`                   // 当日消耗卡路里
+	CompletionStatus string  `json:"completionStatus,omitempty"` // 完成状态(用于计划统计)
 }
 
 // TrainingStats 训练统计
@@ -54,10 +55,38 @@ type CalendarDay struct {
 	TotalDuration int    `json:"totalDuration"` // 总时长
 }
 
+// PlanStats 计划维度统计
+type PlanStats struct {
+	PlanID         string       `json:"planId"`
+	Period         string       `json:"period"`         // 统计周期(week/month/whole)
+	StartDate      string       `json:"startDate"`      // 统计开始日期
+	EndDate        string       `json:"endDate"`        // 统计结束日期
+	CompletionRate int          `json:"completionRate"` // 完成率
+	CompletedDays  int          `json:"completedDays"`  // 完成天数
+	SkippedDays    int          `json:"skippedDays"`    // 跳过天数
+	TotalDuration  int          `json:"totalDuration"`  // 累计训练时长
+	TotalWeight    float64      `json:"totalWeight"`    // 累计重量
+	TotalCalories  int          `json:"totalCalories"`  // 累计消耗卡路里
+	Trend          []DailyStats `json:"trend"`          // 趋势数据
+}
+
+// PlanProgressSummary 计划进度概览
+type PlanProgressSummary struct {
+	PlanID         string `json:"planId"`
+	Name           string `json:"name"`
+	Status         string `json:"status"`
+	CompletionRate int    `json:"completionRate"`
+	CurrentWeek    int    `json:"currentWeek"`
+	CurrentDay     int    `json:"currentDay"`
+	EndDate        string `json:"endDate"`
+}
+
 // StatsUsecase 统计用例接口
 type StatsUsecase interface {
 	GetTrainingStats(c context.Context, userID string, period, startDate, endDate string) (TrainingStats, error)
 	GetMuscleGroupStats(c context.Context, userID string, period string) ([]MuscleGroupStats, error)
 	GetPersonalRecords(c context.Context, userID string) ([]PersonalRecord, error)
 	GetCalendar(c context.Context, userID string, year, month int) ([]CalendarDay, error)
+	GetPlanStats(c context.Context, userID, planID, period string) (PlanStats, error)
+	GetPlanProgressList(c context.Context, userID, status string, page, pageSize int) ([]PlanProgressSummary, int64, error)
 }

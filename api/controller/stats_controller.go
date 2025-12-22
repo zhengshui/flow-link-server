@@ -161,3 +161,94 @@ func (sc *StatsController) GetCalendar(c *gin.Context) {
 
 	c.JSON(http.StatusOK, domain.NewSuccessResponse(calendar))
 }
+
+// GetPlanStats godoc
+// @Summary      获取计划维度统计
+// @Description  获取指定计划的统计数据
+// @Tags         统计
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        planId query string true "计划ID"
+// @Param        period query string false "统计周期(week/month/whole)" default(week)
+// @Success      200 {object} domain.SuccessResponse{data=domain.PlanStats} "获取成功"
+// @Failure      400 {object} domain.ErrorResponse "请求参数错误"
+// @Failure      401 {object} domain.ErrorResponse "未授权访问"
+// @Failure      404 {object} domain.ErrorResponse "计划不存在"
+// @Failure      500 {object} domain.ErrorResponse "服务器错误"
+// @Router       /api/stats/plan [get]
+func (sc *StatsController) GetPlanStats(c *gin.Context) {
+	userIDValue, exists := c.Get("x-user-id")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, domain.NewErrorResponse(401, "未授权访问"))
+		return
+	}
+
+	userID, ok := userIDValue.(string)
+	if !ok {
+		c.JSON(http.StatusUnauthorized, domain.NewErrorResponse(401, "用户ID格式错误"))
+		return
+	}
+
+	// 解析查询参数
+	planID := c.Query("planId")
+	if planID == "" {
+		c.JSON(http.StatusBadRequest, domain.NewErrorResponse(400, "计划ID不能为空"))
+		return
+	}
+	period := c.DefaultQuery("period", "week")
+
+	stats, err := sc.StatsUsecase.GetPlanStats(c, userID, planID, period)
+	if err != nil {
+		c.JSON(http.StatusNotFound, domain.NewErrorResponse(404, "计划不存在或无权访问"))
+		return
+	}
+
+	c.JSON(http.StatusOK, domain.NewSuccessResponse(stats))
+}
+
+// GetPlanProgressList godoc
+// @Summary      获取计划进度概览列表
+// @Description  获取用户所有计划的进度概览
+// @Tags         统计
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        status query string false "计划状态(进行中/已完成/已暂停/已归档)"
+// @Param        page query int false "页码" default(1)
+// @Param        pageSize query int false "每页数量" default(20)
+// @Success      200 {object} domain.SuccessResponse{data=domain.PaginatedData} "获取成功"
+// @Failure      401 {object} domain.ErrorResponse "未授权访问"
+// @Failure      500 {object} domain.ErrorResponse "服务器错误"
+// @Router       /api/stats/plan-progress [get]
+func (sc *StatsController) GetPlanProgressList(c *gin.Context) {
+	userIDValue, exists := c.Get("x-user-id")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, domain.NewErrorResponse(401, "未授权访问"))
+		return
+	}
+
+	userID, ok := userIDValue.(string)
+	if !ok {
+		c.JSON(http.StatusUnauthorized, domain.NewErrorResponse(401, "用户ID格式错误"))
+		return
+	}
+
+	// 解析查询参数
+	status := c.DefaultQuery("status", "")
+	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
+	pageSize, _ := strconv.Atoi(c.DefaultQuery("pageSize", "20"))
+
+	plans, total, err := sc.StatsUsecase.GetPlanProgressList(c, userID, status, page, pageSize)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, domain.NewErrorResponse(500, "获取计划进度列表失败"))
+		return
+	}
+
+	paginatedData := map[string]interface{}{
+		"total": total,
+		"plans": plans,
+	}
+
+	c.JSON(http.StatusOK, domain.NewSuccessResponse(paginatedData))
+}

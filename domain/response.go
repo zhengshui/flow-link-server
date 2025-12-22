@@ -25,6 +25,15 @@ func NewErrorResponse(code int, message string) ApiResponse {
 	}
 }
 
+// NewSuccessResponseWithMessage 创建带自定义消息的成功响应
+func NewSuccessResponseWithMessage(data interface{}, message string) ApiResponse {
+	return ApiResponse{
+		Code:    200,
+		Message: message,
+		Data:    data,
+	}
+}
+
 // PaginatedData 分页数据通用结构
 type PaginatedData struct {
 	Total    int64       `json:"total"`

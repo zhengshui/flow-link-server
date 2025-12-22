@@ -25,21 +25,23 @@ type Exercise struct {
 
 // TrainingRecord 训练记录
 type TrainingRecord struct {
-	ID             primitive.ObjectID `bson:"_id" json:"id"`
-	UserID         primitive.ObjectID `bson:"userId" json:"userId"`
-	Title          string             `bson:"title" json:"title"`                                       // 标题(必填)
-	StartTime      *string            `bson:"startTime,omitempty" json:"startTime,omitempty"`           // 开始时间 YYYY-MM-DD HH:mm:ss
-	EndTime        *string            `bson:"endTime,omitempty" json:"endTime,omitempty"`               // 结束时间 YYYY-MM-DD HH:mm:ss
-	Duration       *int               `bson:"duration,omitempty" json:"duration,omitempty"`             // 总时长(分钟)
-	Exercises      []Exercise         `bson:"exercises,omitempty" json:"exercises,omitempty"`           // 训练项目列表
-	TotalWeight    *float64           `bson:"totalWeight,omitempty" json:"totalWeight,omitempty"`       // 总重量(kg)
-	TotalSets      *int               `bson:"totalSets,omitempty" json:"totalSets,omitempty"`           // 总组数
-	CaloriesBurned *int               `bson:"caloriesBurned,omitempty" json:"caloriesBurned,omitempty"` // 消耗卡路里
-	Notes          *string            `bson:"notes,omitempty" json:"notes,omitempty"`                   // 训练备注
-	Mood           *string            `bson:"mood,omitempty" json:"mood,omitempty"`                     // 训练状态(优秀/良好/一般/疲劳)
-	PlanID         *int               `bson:"planId,omitempty" json:"planId,omitempty"`                 // 关联计划ID
-	CreatedAt      primitive.DateTime `bson:"createdAt" json:"createdAt" swaggertype:"string"`
-	UpdatedAt      primitive.DateTime `bson:"updatedAt" json:"updatedAt" swaggertype:"string"`
+	ID               primitive.ObjectID  `bson:"_id" json:"id"`
+	UserID           primitive.ObjectID  `bson:"userId" json:"userId"`
+	Title            string              `bson:"title" json:"title"`                                               // 标题(必填)
+	StartTime        *string             `bson:"startTime,omitempty" json:"startTime,omitempty"`                   // 开始时间 YYYY-MM-DD HH:mm:ss
+	EndTime          *string             `bson:"endTime,omitempty" json:"endTime,omitempty"`                       // 结束时间 YYYY-MM-DD HH:mm:ss
+	Duration         *int                `bson:"duration,omitempty" json:"duration,omitempty"`                     // 总时长(分钟)
+	Exercises        []Exercise          `bson:"exercises,omitempty" json:"exercises,omitempty"`                   // 训练项目列表
+	TotalWeight      *float64            `bson:"totalWeight,omitempty" json:"totalWeight,omitempty"`               // 总重量(kg)
+	TotalSets        *int                `bson:"totalSets,omitempty" json:"totalSets,omitempty"`                   // 总组数
+	CaloriesBurned   *int                `bson:"caloriesBurned,omitempty" json:"caloriesBurned,omitempty"`         // 消耗卡路里
+	Notes            *string             `bson:"notes,omitempty" json:"notes,omitempty"`                           // 训练备注
+	Mood             *string             `bson:"mood,omitempty" json:"mood,omitempty"`                             // 训练状态(优秀/良好/一般/疲劳)
+	PlanID           *primitive.ObjectID `bson:"planId,omitempty" json:"planId,omitempty"`                         // 关联计划ID
+	PlanDayID        *int                `bson:"planDayId,omitempty" json:"planDayId,omitempty"`                   // 关联计划日ID
+	CompletionStatus *string             `bson:"completionStatus,omitempty" json:"completionStatus,omitempty"`     // 完成状态(完成/部分/跳过)
+	CreatedAt        primitive.DateTime  `bson:"createdAt" json:"createdAt" swaggertype:"string"`
+	UpdatedAt        primitive.DateTime  `bson:"updatedAt" json:"updatedAt" swaggertype:"string"`
 }
 
 // TrainingRecordRepository 训练记录仓储接口
@@ -53,32 +55,36 @@ type TrainingRecordRepository interface {
 
 // CreateTrainingRecordRequest 创建训练记录请求
 type CreateTrainingRecordRequest struct {
-	Title          string     `json:"title" binding:"required"` // 标题(必填)
-	StartTime      *string    `json:"startTime,omitempty"`      // 开始时间 YYYY-MM-DD HH:mm:ss
-	EndTime        *string    `json:"endTime,omitempty"`        // 结束时间 YYYY-MM-DD HH:mm:ss
-	Duration       *int       `json:"duration,omitempty"`       // 总时长(分钟)
-	Exercises      []Exercise `json:"exercises,omitempty"`      // 训练项目列表
-	TotalWeight    *float64   `json:"totalWeight,omitempty"`    // 总重量(kg)
-	TotalSets      *int       `json:"totalSets,omitempty"`      // 总组数
-	CaloriesBurned *int       `json:"caloriesBurned,omitempty"` // 消耗卡路里
-	Notes          *string    `json:"notes,omitempty"`          // 训练备注
-	Mood           *string    `json:"mood,omitempty"`           // 训练状态
-	PlanID         *int       `json:"planId,omitempty"`         // 关联计划ID
+	Title            string     `json:"title" binding:"required"` // 标题(必填)
+	StartTime        *string    `json:"startTime,omitempty"`      // 开始时间 YYYY-MM-DD HH:mm:ss
+	EndTime          *string    `json:"endTime,omitempty"`        // 结束时间 YYYY-MM-DD HH:mm:ss
+	Duration         *int       `json:"duration,omitempty"`       // 总时长(分钟)
+	Exercises        []Exercise `json:"exercises,omitempty"`      // 训练项目列表
+	TotalWeight      *float64   `json:"totalWeight,omitempty"`    // 总重量(kg)
+	TotalSets        *int       `json:"totalSets,omitempty"`      // 总组数
+	CaloriesBurned   *int       `json:"caloriesBurned,omitempty"` // 消耗卡路里
+	Notes            *string    `json:"notes,omitempty"`          // 训练备注
+	Mood             *string    `json:"mood,omitempty"`           // 训练状态
+	PlanID           *string    `json:"planId,omitempty"`         // 关联计划ID
+	PlanDayID        *int       `json:"planDayId,omitempty"`      // 关联计划日ID
+	CompletionStatus *string    `json:"completionStatus,omitempty"` // 完成状态(完成/部分/跳过)
 }
 
 // UpdateTrainingRecordRequest 更新训练记录请求
 type UpdateTrainingRecordRequest struct {
-	Title          *string    `json:"title,omitempty"`          // 标题
-	StartTime      *string    `json:"startTime,omitempty"`      // 开始时间 YYYY-MM-DD HH:mm:ss
-	EndTime        *string    `json:"endTime,omitempty"`        // 结束时间 YYYY-MM-DD HH:mm:ss
-	Duration       *int       `json:"duration,omitempty"`       // 总时长(分钟)
-	Exercises      []Exercise `json:"exercises,omitempty"`      // 训练项目列表
-	TotalWeight    *float64   `json:"totalWeight,omitempty"`    // 总重量(kg)
-	TotalSets      *int       `json:"totalSets,omitempty"`      // 总组数
-	CaloriesBurned *int       `json:"caloriesBurned,omitempty"` // 消耗卡路里
-	Notes          *string    `json:"notes,omitempty"`          // 训练备注
-	Mood           *string    `json:"mood,omitempty"`           // 训练状态
-	PlanID         *int       `json:"planId,omitempty"`         // 关联计划ID
+	Title            *string    `json:"title,omitempty"`          // 标题
+	StartTime        *string    `json:"startTime,omitempty"`      // 开始时间 YYYY-MM-DD HH:mm:ss
+	EndTime          *string    `json:"endTime,omitempty"`        // 结束时间 YYYY-MM-DD HH:mm:ss
+	Duration         *int       `json:"duration,omitempty"`       // 总时长(分钟)
+	Exercises        []Exercise `json:"exercises,omitempty"`      // 训练项目列表
+	TotalWeight      *float64   `json:"totalWeight,omitempty"`    // 总重量(kg)
+	TotalSets        *int       `json:"totalSets,omitempty"`      // 总组数
+	CaloriesBurned   *int       `json:"caloriesBurned,omitempty"` // 消耗卡路里
+	Notes            *string    `json:"notes,omitempty"`          // 训练备注
+	Mood             *string    `json:"mood,omitempty"`           // 训练状态
+	PlanID           *string    `json:"planId,omitempty"`         // 关联计划ID
+	PlanDayID        *int       `json:"planDayId,omitempty"`      // 关联计划日ID
+	CompletionStatus *string    `json:"completionStatus,omitempty"` // 完成状态
 }
 
 // TrainingRecordUsecase 训练记录用例接口

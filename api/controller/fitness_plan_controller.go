@@ -325,7 +325,145 @@ func (fc *FitnessPlanController) Delete(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, domain.NewSuccessResponse(map[string]interface{}{
-		"message": "健身计划删除成功",
-	}))
+	c.JSON(http.StatusOK, domain.NewSuccessResponseWithMessage(nil, "删除成功"))
+}
+
+// GetProgress godoc
+// @Summary      获取计划进度摘要
+// @Description  获取健身计划的进度摘要信息
+// @Tags         健身计划
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        planId path string true "计划ID"
+// @Success      200 {object} domain.SuccessResponse{data=domain.PlanProgress} "获取成功"
+// @Failure      400 {object} domain.ErrorResponse "计划ID不能为空"
+// @Failure      401 {object} domain.ErrorResponse "未授权访问"
+// @Failure      404 {object} domain.ErrorResponse "计划不存在"
+// @Failure      500 {object} domain.ErrorResponse "服务器错误"
+// @Router       /api/plans/{planId}/progress [get]
+func (fc *FitnessPlanController) GetProgress(c *gin.Context) {
+	userIDValue, exists := c.Get("x-user-id")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, domain.NewErrorResponse(401, "未授权访问"))
+		return
+	}
+
+	userID, ok := userIDValue.(string)
+	if !ok {
+		c.JSON(http.StatusUnauthorized, domain.NewErrorResponse(401, "用户ID格式错误"))
+		return
+	}
+
+	planID := c.Param("planId")
+	if planID == "" {
+		c.JSON(http.StatusBadRequest, domain.NewErrorResponse(400, "计划ID不能为空"))
+		return
+	}
+
+	progress, err := fc.FitnessPlanUsecase.GetProgress(c, userID, planID)
+	if err != nil {
+		c.JSON(http.StatusNotFound, domain.NewErrorResponse(404, "计划不存在"))
+		return
+	}
+
+	c.JSON(http.StatusOK, domain.NewSuccessResponse(progress))
+}
+
+// SkipDay godoc
+// @Summary      跳过计划日
+// @Description  跳过健身计划中的某一天
+// @Tags         健身计划
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        planId path string true "计划ID"
+// @Param        request body domain.SkipDayRequest true "跳过日期信息"
+// @Success      200 {object} domain.SuccessResponse{data=map[string]interface{}} "已跳过"
+// @Failure      400 {object} domain.ErrorResponse "请求参数错误"
+// @Failure      401 {object} domain.ErrorResponse "未授权访问"
+// @Failure      500 {object} domain.ErrorResponse "服务器错误"
+// @Router       /api/plans/{planId}/skip-day [post]
+func (fc *FitnessPlanController) SkipDay(c *gin.Context) {
+	userIDValue, exists := c.Get("x-user-id")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, domain.NewErrorResponse(401, "未授权访问"))
+		return
+	}
+
+	userID, ok := userIDValue.(string)
+	if !ok {
+		c.JSON(http.StatusUnauthorized, domain.NewErrorResponse(401, "用户ID格式错误"))
+		return
+	}
+
+	planID := c.Param("planId")
+	if planID == "" {
+		c.JSON(http.StatusBadRequest, domain.NewErrorResponse(400, "计划ID不能为空"))
+		return
+	}
+
+	var request domain.SkipDayRequest
+	err := c.ShouldBindJSON(&request)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, domain.NewErrorResponse(400, err.Error()))
+		return
+	}
+
+	result, err := fc.FitnessPlanUsecase.SkipDay(c, userID, planID, request.DayNumber, request.Reason)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, domain.NewErrorResponse(500, err.Error()))
+		return
+	}
+
+	c.JSON(http.StatusOK, domain.NewSuccessResponseWithMessage(result, "已跳过"))
+}
+
+// AdjustDay godoc
+// @Summary      临时调整计划日动作
+// @Description  临时调整健身计划中某一天的训练动作（仅对该计划实例生效，不修改原模板）
+// @Tags         健身计划
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        planId path string true "计划ID"
+// @Param        request body domain.AdjustDayRequest true "调整信息"
+// @Success      200 {object} domain.SuccessResponse "调整成功"
+// @Failure      400 {object} domain.ErrorResponse "请求参数错误"
+// @Failure      401 {object} domain.ErrorResponse "未授权访问"
+// @Failure      500 {object} domain.ErrorResponse "服务器错误"
+// @Router       /api/plans/{planId}/adjust-day [post]
+func (fc *FitnessPlanController) AdjustDay(c *gin.Context) {
+	userIDValue, exists := c.Get("x-user-id")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, domain.NewErrorResponse(401, "未授权访问"))
+		return
+	}
+
+	userID, ok := userIDValue.(string)
+	if !ok {
+		c.JSON(http.StatusUnauthorized, domain.NewErrorResponse(401, "用户ID格式错误"))
+		return
+	}
+
+	planID := c.Param("planId")
+	if planID == "" {
+		c.JSON(http.StatusBadRequest, domain.NewErrorResponse(400, "计划ID不能为空"))
+		return
+	}
+
+	var request domain.AdjustDayRequest
+	err := c.ShouldBindJSON(&request)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, domain.NewErrorResponse(400, err.Error()))
+		return
+	}
+
+	err = fc.FitnessPlanUsecase.AdjustDay(c, userID, planID, request.DayNumber, request.Exercises, request.Notes)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, domain.NewErrorResponse(500, err.Error()))
+		return
+	}
+
+	c.JSON(http.StatusOK, domain.NewSuccessResponseWithMessage(nil, "调整成功"))
 }

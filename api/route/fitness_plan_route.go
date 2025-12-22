@@ -25,4 +25,8 @@ func NewFitnessPlanRouter(env *bootstrap.Env, timeout time.Duration, db mongo.Da
 	group.PUT("/plans/:planId/status", fc.UpdateStatus)
 	group.POST("/plans/:planId/complete-day", fc.CompleteDay)
 	group.DELETE("/plans/:planId", fc.Delete)
+	// v1.3.0 新增路由
+	group.GET("/plans/:planId/progress", fc.GetProgress)
+	group.POST("/plans/:planId/skip-day", fc.SkipDay)
+	group.POST("/plans/:planId/adjust-day", fc.AdjustDay)
 }

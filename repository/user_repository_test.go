@@ -25,7 +25,7 @@ func TestCreate(t *testing.T) {
 
 	mockUser := &domain.User{
 		ID:       primitive.NewObjectID(),
-		Name:     "Test",
+		Username: "Test",
 		Email:    "test@gmail.com",
 		Password: "password",
 	}

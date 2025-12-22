@@ -26,7 +26,7 @@ func Setup(env *bootstrap.Env, timeout time.Duration, db mongo.Database, router 
 	NewSignupRouter(env, timeout, db, publicRouter)
 	NewLoginRouter(env, timeout, db, publicRouter)
 	NewRefreshTokenRouter(env, timeout, db, publicRouter)
-	// Plan templates are public
+	// Plan templates public endpoints (GET only)
 	NewPlanTemplateRouter(env, timeout, db, publicRouter)
 
 	// Protected APIs (JWT authentication required)
@@ -42,4 +42,13 @@ func Setup(env *bootstrap.Env, timeout time.Duration, db mongo.Database, router 
 	NewStatsRouter(env, timeout, db, protectedRouter)
 	// Feedback
 	NewFeedbackRouter(env, timeout, db, protectedRouter)
+	// Plan templates protected endpoints (POST, PUT, DELETE for personal templates)
+	NewProtectedPlanTemplateRouter(env, timeout, db, protectedRouter)
+
+	// Admin APIs (JWT authentication + admin role required)
+	adminRouter := apiGroup.Group("/admin")
+	adminRouter.Use(middleware.JwtAuthMiddleware(env.AccessTokenSecret))
+	adminRouter.Use(middleware.AdminAuthMiddleware(env.AccessTokenSecret))
+	// Admin plan templates management
+	NewAdminPlanTemplateRouter(env, timeout, db, adminRouter)
 }

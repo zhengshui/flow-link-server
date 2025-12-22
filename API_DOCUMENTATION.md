@@ -1,7 +1,7 @@
 # FitEasy (健身易) - 后端API接口文档
 
-**版本**: v1.1.0
-**更新日期**: 2025-11-03
+**版本**: v1.3.0
+**更新日期**: 2025-12-18
 **基础URL**: `https://api.fiteasy.com` (待定)
 
 ---
@@ -369,6 +369,111 @@ Authorization: Bearer {access_token}
 
 ---
 
+### 8. 获取计划进度摘要
+
+**接口**: `GET /api/plans/{planId}/progress`
+
+**需要认证**: 是
+
+**路径参数**:
+- `planId`: 计划ID
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "message": "success",
+  "data": {
+    "planId": 1,
+    "totalDays": 28,
+    "completedDays": 10,
+    "skippedDays": 1,
+    "completionRate": 39,
+    "currentWeek": 3,
+    "currentDay": 2,
+    "nextTrainingDate": "2025-12-19",
+    "totalDuration": 1250,
+    "totalWeight": 48000,
+    "totalCalories": 3600
+  }
+}
+```
+
+---
+
+### 9. 跳过计划日
+
+**接口**: `POST /api/plans/{planId}/skip-day`
+
+**需要认证**: 是
+
+**路径参数**:
+- `planId`: 计划ID
+
+**请求参数**:
+```json
+{
+  "dayNumber": 5,            // 要跳过的训练日
+  "reason": "string"         // 可选，跳过原因
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "message": "已跳过",
+  "data": {
+    "skippedDays": 2,
+    "completionRate": 36
+  }
+}
+```
+
+---
+
+### 10. 临时调整计划日动作
+
+**接口**: `POST /api/plans/{planId}/adjust-day`
+
+**需要认证**: 是
+
+**路径参数**:
+- `planId`: 计划ID
+
+**请求参数**:
+```json
+{
+  "dayNumber": 3,
+  "exercises": [
+    {
+      "name": "string",
+      "sets": 4,
+      "reps": 10,
+      "weight": 60,
+      "restTime": 90,
+      "muscleGroup": "string",
+      "notes": "string",
+      "duration": 15
+    }
+  ],
+  "notes": "string"          // 当日备注，可覆盖模板备注
+}
+```
+
+**说明**: 仅对该计划实例生效，不修改原模板。
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "message": "调整成功",
+  "data": null
+}
+```
+
+---
+
 ## 健身计划接口
 
 ### 1. 获取用户计划列表
@@ -452,7 +557,17 @@ Authorization: Bearer {access_token}
 {
   "templateId": 1,           // 模板ID
   "startDate": "string",     // 开始日期 (YYYY-MM-DD)
-  "name": "string"           // 计划名称（可选，默认使用模板名称）
+  "name": "string",          // 计划名称（可选，默认使用模板名称）
+  "durationWeeksOverride": 6,// 可选，覆盖模板周期
+  "trainingDaysOverride": [  // 可选，轻量调整日程
+    {
+      "dayNumber": 1,
+      "dayName": "string",
+      "isRestDay": false,
+      "exercises": [...],
+      "notes": "string"
+    }
+  ]
 }
 ```
 
@@ -592,6 +707,10 @@ Authorization: Bearer {access_token}
 **请求参数** (Query):
 - `goal`: 训练目标（可选，增肌/减脂/力量提升/耐力提升/综合健身）
 - `level`: 难度等级（可选，初级/中级/高级）
+- `splitType`: 分化方式（可选，二分化/三分化/推拉腿/上下肢/四分化/五分化）
+- `equipment`: 主要器械（可选，徒手/哑铃/器械/混合）
+- `durationWeeksMin`: 最小周期（周，可选）
+- `durationWeeksMax`: 最长周期（周，可选）
 - `page`: 页码（默认1）
 - `pageSize`: 每页条数（默认20）
 
@@ -636,6 +755,172 @@ Authorization: Bearer {access_token}
 - `templateId`: 模板ID
 
 **响应示例**: 同上单个模板格式
+
+---
+
+### 3. 创建个人模板
+
+**接口**: `POST /api/templates/custom`
+
+**需要认证**: 是
+
+**请求参数**:
+```json
+{
+  "name": "string",
+  "description": "string",
+  "goal": "string",
+  "splitType": "string",           // 二分化/三分化/推拉腿/上下肢/四分化/五分化
+  "level": "string",               // 初级/中级/高级
+  "equipment": "string",           // 徒手/哑铃/器械/混合
+  "durationWeeks": 8,
+  "trainingDaysPerWeek": 4,
+  "trainingDays": [
+    {
+      "dayNumber": 1,
+      "dayName": "string",
+      "isRestDay": false,
+      "exercises": [...],
+      "notes": "string",
+      "intensityHint": "RPE 7-8",
+      "warmupTips": "string",
+      "cooldownTips": "string"
+    }
+  ],
+  "tags": ["string"],
+  "imageUrl": "string"
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "message": "创建成功",
+  "data": {
+    "id": 101,
+    "name": "我的推拉腿模板"
+  }
+}
+```
+
+---
+
+### 4. 复制官方模板为个人模板
+
+**接口**: `POST /api/templates/{templateId}/duplicate`
+
+**需要认证**: 是
+
+**路径参数**:
+- `templateId`: 模板ID（通常为官方模板）
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "message": "复制成功",
+  "data": {
+    "id": 202,
+    "name": "复制自：增肌三分化"
+  }
+}
+```
+
+---
+
+### 5. 更新个人模板
+
+**接口**: `PUT /api/templates/{templateId}`
+
+**需要认证**: 是（仅模板所有者）
+
+**路径参数**:
+- `templateId`: 模板ID
+
+**请求参数**: 同创建个人模板，字段均可选。
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "message": "更新成功",
+  "data": null
+}
+```
+
+---
+
+### 6. 删除个人模板
+
+**接口**: `DELETE /api/templates/{templateId}`
+
+**需要认证**: 是（仅模板所有者）
+
+**路径参数**:
+- `templateId`: 模板ID
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "message": "删除成功",
+  "data": null
+}
+```
+
+---
+
+### 7. 创建官方模板（管理员）
+
+**接口**: `POST /api/admin/templates`
+
+**需要认证**: 是（仅管理员）
+
+**请求参数**:
+```json
+{
+  "name": "string",
+  "description": "string",
+  "goal": "string",
+  "splitType": "string",           // 全身训练/二分化/三分化/推拉腿/上下肢/四分化/五分化
+  "level": "string",               // 初级/中级/高级
+  "equipment": "string",           // 徒手/哑铃/器械/混合
+  "durationWeeks": 8,
+  "trainingDaysPerWeek": 4,
+  "trainingDays": [
+    {
+      "dayNumber": 1,
+      "dayName": "string",
+      "isRestDay": false,
+      "exercises": [...],
+      "notes": "string",
+      "intensityHint": "RPE 7-8",
+      "warmupTips": "string",
+      "cooldownTips": "string"
+    }
+  ],
+  "author": "FitEasy官方",
+  "tags": ["string"],
+  "recommendedIntensity": "string",
+  "imageUrl": "string"
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "message": "创建成功",
+  "data": {
+    "id": 1,
+    "name": "新手全身入门计划",
+    "isOfficial": true
+  }
+}
+```
+
+**说明**: 此接口仅限管理员使用，创建的模板自动标记为官方模板 (`isOfficial: true`)
 
 ---
 
@@ -813,6 +1098,82 @@ Authorization: Bearer {access_token}
 
 ---
 
+### 5. 获取计划维度统计
+
+**接口**: `GET /api/stats/plan`
+
+**需要认证**: 是
+
+**请求参数** (Query):
+- `planId`: 计划ID
+- `period`: 统计周期（week/month/whole）
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "message": "success",
+  "data": {
+    "planId": 1,
+    "period": "week",
+    "startDate": "2025-12-15",
+    "endDate": "2025-12-21",
+    "completionRate": 45,
+    "completedDays": 9,
+    "skippedDays": 1,
+    "totalDuration": 520,
+    "totalWeight": 18800,
+    "totalCalories": 1400,
+    "trend": [
+      {
+        "date": "2025-12-15",
+        "completionStatus": "completed",
+        "duration": 80,
+        "weight": 3200,
+        "calories": 210
+      }
+    ]
+  }
+}
+```
+
+---
+
+### 6. 获取计划进度概览列表
+
+**接口**: `GET /api/stats/plan-progress`
+
+**需要认证**: 是
+
+**请求参数** (Query):
+- `status`: 计划状态（可选，进行中/已完成/已暂停/已归档）
+- `page`: 页码（默认1）
+- `pageSize`: 每页条数（默认20）
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "message": "success",
+  "data": {
+    "total": 3,
+    "plans": [
+      {
+        "planId": 1,
+        "name": "增肌三分化",
+        "status": "进行中",
+        "completionRate": 42,
+        "currentWeek": 3,
+        "currentDay": 2,
+        "endDate": "2026-01-05"
+      }
+    ]
+  }
+}
+```
+
+---
+
 ## 反馈接口
 
 ### 1. 提交用户反馈
@@ -880,6 +1241,8 @@ Authorization: Bearer {access_token}
   notes: string                   // 训练备注
   mood: string                    // 训练状态（优秀/良好/一般/疲劳）
   planId: number                  // 关联计划ID（0表示无计划）
+  planDayId: number               // 关联计划日ID（可选）
+  completionStatus: string        // 完成状态（完成/部分/跳过）
   createdAt: string               // 创建时间
   updatedAt: string               // 更新时间
 }
@@ -912,16 +1275,22 @@ Authorization: Bearer {access_token}
   description: string             // 计划描述
   goal: string                    // 训练目标
   durationWeeks: number           // 计划周期（周）
+  durationWeeksOverride: number   // 可选，覆盖模板周期
   trainingDaysPerWeek: number     // 每周训练天数
   trainingDays: TrainingDay[]     // 训练日程
+  trainingDaysOverride: TrainingDay[] // 可选，覆盖后的日程
   startDate: string               // 开始日期 (YYYY-MM-DD)
   endDate: string                 // 结束日期 (YYYY-MM-DD)
   status: string                  // 计划状态（进行中/已完成/已暂停/已归档）
   currentWeek: number             // 当前第几周
   currentDay: number              // 当前第几天
   completedDays: number[]         // 已完成的训练日
+  skippedDays: number[]           // 跳过的训练日
   totalCompletedDays: number      // 累计完成天数
   completionRate: number          // 完成率（百分比）
+  totalWeight: number             // 计划累计重量
+  totalDuration: number           // 计划累计时长
+  totalCalories: number           // 计划累计消耗卡路里
   createdAt: string               // 创建时间
   updatedAt: string               // 更新时间
 }
@@ -935,13 +1304,16 @@ Authorization: Bearer {access_token}
   name: string                    // 模板名称
   description: string             // 模板描述
   goal: string                    // 训练目标
+  splitType: string               // 分化方式（二分/三分/推拉腿/上下肢/四分化/五分化）
   level: string                   // 难度等级（初级/中级/高级）
+  equipment: string               // 主要器械（徒手/哑铃/器械/混合）
   durationWeeks: number           // 计划周期（周）
   trainingDaysPerWeek: number     // 每周训练天数
   trainingDays: TrainingDay[]     // 训练日程
   imageUrl: string                // 封面图片URL
   author: string                  // 作者/来源
   tags: string[]                  // 标签
+  recommendedIntensity: string    // 推荐强度（如 RPE 7-8）
   createdAt: string               // 创建时间
 }
 ```
@@ -955,6 +1327,9 @@ Authorization: Bearer {access_token}
   isRestDay: boolean              // 是否为休息日
   exercises: Exercise[]           // 当日训练项目
   notes: string                   // 当日备注
+  intensityHint: string           // 强度提示（如百分比/RPE）
+  warmupTips: string              // 热身建议
+  cooldownTips: string            // 放松建议
 }
 ```
 
@@ -976,6 +1351,22 @@ Authorization: Bearer {access_token}
   mostTrainedMuscle: string       // 训练最多的肌群
   favoriteExercise: string        // 最常做的训练项目
   dailyStats: DailyStats[]        // 每日统计数据
+  planStats?: PlanStats           // 可选，计划维度统计
+}
+```
+
+### PlanStats (计划统计)
+```typescript
+{
+  planId: number                  // 计划ID
+  planName: string                // 计划名称
+  completionRate: number          // 完成率
+  completedDays: number           // 完成天数
+  skippedDays: number             // 跳过天数
+  totalDuration: number           // 累计训练时长
+  totalWeight: number             // 累计重量
+  totalCalories: number           // 累计消耗卡路里
+  trend: DailyStats[]             // 趋势数据
 }
 ```
 
@@ -1038,6 +1429,16 @@ Authorization: Bearer {access_token}
 ---
 
 ## 版本历史
+
+### v1.3.0 (2025-12-18)
+
+**新增功能** - 官方计划 / 个人模板 / 计划统计
+
+1. 新增个人模板接口（创建、更新、删除、复制官方模板）
+2. 新增计划进度接口（progress/skip-day/adjust-day）
+3. 新增计划维度统计接口（plan、plan-progress）
+4. 数据模型补充 splitType、equipment、intensityHint、planDayId、completionStatus 等字段
+5. 首页与计划中心规划：官方计划、个人模板、计划进度视图（客户端实现指引）
 
 ### v1.2.0 (2025-12-16)
 
