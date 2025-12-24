@@ -37,9 +37,9 @@ type TrainingRecord struct {
 	CaloriesBurned   *int                `bson:"caloriesBurned,omitempty" json:"caloriesBurned,omitempty"`         // 消耗卡路里
 	Notes            *string             `bson:"notes,omitempty" json:"notes,omitempty"`                           // 训练备注
 	Mood             *string             `bson:"mood,omitempty" json:"mood,omitempty"`                             // 训练状态(优秀/良好/一般/疲劳)
-	PlanID           *primitive.ObjectID `bson:"planId,omitempty" json:"planId,omitempty"`                         // 关联计划ID
-	PlanDayID        *int                `bson:"planDayId,omitempty" json:"planDayId,omitempty"`                   // 关联计划日ID
-	CompletionStatus *string             `bson:"completionStatus,omitempty" json:"completionStatus,omitempty"`     // 完成状态(完成/部分/跳过)
+	PlanID           string              `bson:"planId,omitempty" json:"planId,omitempty"`             // 关联计划ID
+	PlanDayID        *int                `bson:"planDayId,omitempty" json:"planDayId,omitempty"`       // 关联计划日ID
+	CompletionStatus *string             `bson:"completionStatus,omitempty" json:"completionStatus,omitempty"` // 完成状态(完成/部分/跳过)
 	CreatedAt        primitive.DateTime  `bson:"createdAt" json:"createdAt" swaggertype:"string"`
 	UpdatedAt        primitive.DateTime  `bson:"updatedAt" json:"updatedAt" swaggertype:"string"`
 }
@@ -48,7 +48,7 @@ type TrainingRecord struct {
 type TrainingRecordRepository interface {
 	Create(c context.Context, record *TrainingRecord) error
 	GetByID(c context.Context, id string) (TrainingRecord, error)
-	GetByUserID(c context.Context, userID string, page, pageSize int, startDate, endDate string, planID int) ([]TrainingRecord, int64, error)
+	GetByUserID(c context.Context, userID string, page, pageSize int, startDate, endDate string, planID string) ([]TrainingRecord, int64, error)
 	Update(c context.Context, id string, record *TrainingRecord) error
 	Delete(c context.Context, id string) error
 }
@@ -91,7 +91,7 @@ type UpdateTrainingRecordRequest struct {
 type TrainingRecordUsecase interface {
 	Create(c context.Context, userID string, request *CreateTrainingRecordRequest) (map[string]interface{}, error)
 	GetByID(c context.Context, userID, recordID string) (TrainingRecord, error)
-	GetList(c context.Context, userID string, page, pageSize int, startDate, endDate string, planID int) ([]TrainingRecord, int64, error)
+	GetList(c context.Context, userID string, page, pageSize int, startDate, endDate string, planID string) ([]TrainingRecord, int64, error)
 	Update(c context.Context, userID, recordID string, request *UpdateTrainingRecordRequest) error
 	Delete(c context.Context, userID, recordID string) error
 }

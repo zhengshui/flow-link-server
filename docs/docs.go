@@ -24,6 +24,82 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/api/admin/templates": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "管理员创建官方计划模板",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "管理员-计划模板"
+                ],
+                "summary": "创建官方模板（管理员）",
+                "parameters": [
+                    {
+                        "description": "模板信息",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.CreateOfficialTemplateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "创建成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/domain.SuccessResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "additionalProperties": true
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "请求参数错误",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权访问",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "需要管理员权限",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器错误",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/auth/login": {
             "post": {
                 "description": "用户通过用户名和密码登录，返回JWT token",
@@ -191,6 +267,75 @@ const docTemplate = `{
                     },
                     "409": {
                         "description": "用户名已存在",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器错误",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/feedback": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "用户提交意见反馈",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "反馈"
+                ],
+                "summary": "提交用户反馈",
+                "parameters": [
+                    {
+                        "description": "反馈信息",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.FeedbackRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "反馈提交成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/domain.SuccessResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/domain.FeedbackResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "请求参数错误",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权",
                         "schema": {
                             "$ref": "#/definitions/domain.ErrorResponse"
                         }
@@ -549,6 +694,70 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/plans/{planId}/adjust-day": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "临时调整健身计划中某一天的训练动作（仅对该计划实例生效，不修改原模板）",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "健身计划"
+                ],
+                "summary": "临时调整计划日动作",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "计划ID",
+                        "name": "planId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "调整信息",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.AdjustDayRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "调整成功",
+                        "schema": {
+                            "$ref": "#/definitions/domain.SuccessResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "请求参数错误",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权访问",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器错误",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/plans/{planId}/complete-day": {
             "post": {
                 "security": [
@@ -598,6 +807,156 @@ const docTemplate = `{
                                     "properties": {
                                         "data": {
                                             "$ref": "#/definitions/domain.FitnessPlan"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "请求参数错误",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权访问",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器错误",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/plans/{planId}/progress": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "获取健身计划的进度摘要信息",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "健身计划"
+                ],
+                "summary": "获取计划进度摘要",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "计划ID",
+                        "name": "planId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "获取成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/domain.SuccessResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/domain.PlanProgress"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "计划ID不能为空",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权访问",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "计划不存在",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器错误",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/plans/{planId}/skip-day": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "跳过健身计划中的某一天",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "健身计划"
+                ],
+                "summary": "跳过计划日",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "计划ID",
+                        "name": "planId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "跳过日期信息",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.SkipDayRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "已跳过",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/domain.SuccessResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "additionalProperties": true
                                         }
                                     }
                                 }
@@ -892,6 +1251,160 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/stats/plan": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "获取指定计划的统计数据",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "统计"
+                ],
+                "summary": "获取计划维度统计",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "计划ID",
+                        "name": "planId",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "default": "week",
+                        "description": "统计周期(week/month/whole)",
+                        "name": "period",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "获取成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/domain.SuccessResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/domain.PlanStats"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "请求参数错误",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权访问",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "计划不存在",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器错误",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/stats/plan-progress": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "获取用户所有计划的进度概览",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "统计"
+                ],
+                "summary": "获取计划进度概览列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "计划状态(进行中/已完成/已暂停/已归档)",
+                        "name": "status",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "页码",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 20,
+                        "description": "每页数量",
+                        "name": "pageSize",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "获取成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/domain.SuccessResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/domain.PaginatedData"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "未授权访问",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器错误",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/stats/training": {
             "get": {
                 "security": [
@@ -969,7 +1482,7 @@ const docTemplate = `{
         },
         "/api/templates": {
             "get": {
-                "description": "获取计划模板列表，支持分页和筛选（无需认证）",
+                "description": "获取官方计划模板列表，支持分页和筛选（无需认证）",
                 "consumes": [
                     "application/json"
                 ],
@@ -990,21 +1503,45 @@ const docTemplate = `{
                     },
                     {
                         "type": "integer",
-                        "default": 10,
+                        "default": 20,
                         "description": "每页数量",
                         "name": "pageSize",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "description": "健身目标",
+                        "description": "训练目标(增肌/减脂/力量提升/耐力提升/综合健身)",
                         "name": "goal",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "description": "难度级别",
+                        "description": "难度等级(初级/中级/高级)",
                         "name": "level",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "分化方式(二分化/三分化/推拉腿/上下肢/四分化/五分化)",
+                        "name": "splitType",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "主要器械(徒手/哑铃/器械/混合)",
+                        "name": "equipment",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "最小周期(周)",
+                        "name": "durationWeeksMin",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "最长周期(周)",
+                        "name": "durationWeeksMax",
                         "in": "query"
                     }
                 ],
@@ -1025,6 +1562,76 @@ const docTemplate = `{
                                     }
                                 }
                             ]
+                        }
+                    },
+                    "500": {
+                        "description": "服务器错误",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/templates/custom": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "创建个人计划模板",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "计划模板"
+                ],
+                "summary": "创建个人模板",
+                "parameters": [
+                    {
+                        "description": "模板信息",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.CreateCustomTemplateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "创建成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/domain.SuccessResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "additionalProperties": true
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "请求参数错误",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权访问",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ErrorResponse"
                         }
                     },
                     "500": {
@@ -1085,6 +1692,219 @@ const docTemplate = `{
                     },
                     "404": {
                         "description": "计划模板不存在",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "更新用户的个人计划模板（仅模板所有者）",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "计划模板"
+                ],
+                "summary": "更新个人模板",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "模板ID",
+                        "name": "templateId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "模板信息",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.UpdateTemplateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "更新成功",
+                        "schema": {
+                            "$ref": "#/definitions/domain.SuccessResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "请求参数错误",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权访问",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "无权限修改",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "模板不存在",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器错误",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "删除用户的个人计划模板（仅模板所有者）",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "计划模板"
+                ],
+                "summary": "删除个人模板",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "模板ID",
+                        "name": "templateId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "删除成功",
+                        "schema": {
+                            "$ref": "#/definitions/domain.SuccessResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "模板ID不能为空",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权访问",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "无权限删除",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "模板不存在",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器错误",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/templates/{templateId}/duplicate": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "复制官方模板创建为用户的个人模板",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "计划模板"
+                ],
+                "summary": "复制官方模板为个人模板",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "模板ID",
+                        "name": "templateId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "复制成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/domain.SuccessResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "additionalProperties": true
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "模板ID不能为空",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权访问",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "模板不存在",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器错误",
                         "schema": {
                             "$ref": "#/definitions/domain.ErrorResponse"
                         }
@@ -1577,6 +2397,27 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "domain.AdjustDayRequest": {
+            "type": "object",
+            "required": [
+                "dayNumber",
+                "exercises"
+            ],
+            "properties": {
+                "dayNumber": {
+                    "type": "integer"
+                },
+                "exercises": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.Exercise"
+                    }
+                },
+                "notes": {
+                    "type": "string"
+                }
+            }
+        },
         "domain.CalendarDay": {
             "type": "object",
             "properties": {
@@ -1649,6 +2490,125 @@ const docTemplate = `{
                 }
             }
         },
+        "domain.CreateCustomTemplateRequest": {
+            "type": "object",
+            "required": [
+                "durationWeeks",
+                "goal",
+                "name",
+                "trainingDays",
+                "trainingDaysPerWeek"
+            ],
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "durationWeeks": {
+                    "type": "integer"
+                },
+                "equipment": {
+                    "description": "徒手/哑铃/器械/混合",
+                    "type": "string"
+                },
+                "goal": {
+                    "type": "string"
+                },
+                "imageUrl": {
+                    "type": "string"
+                },
+                "level": {
+                    "description": "初级/中级/高级",
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "recommendedIntensity": {
+                    "type": "string"
+                },
+                "splitType": {
+                    "description": "分化方式",
+                    "type": "string"
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "trainingDays": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.TrainingDay"
+                    }
+                },
+                "trainingDaysPerWeek": {
+                    "type": "integer"
+                }
+            }
+        },
+        "domain.CreateOfficialTemplateRequest": {
+            "type": "object",
+            "required": [
+                "durationWeeks",
+                "goal",
+                "name",
+                "trainingDays",
+                "trainingDaysPerWeek"
+            ],
+            "properties": {
+                "author": {
+                    "description": "作者/来源",
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "durationWeeks": {
+                    "type": "integer"
+                },
+                "equipment": {
+                    "description": "徒手/哑铃/器械/混合",
+                    "type": "string"
+                },
+                "goal": {
+                    "type": "string"
+                },
+                "imageUrl": {
+                    "type": "string"
+                },
+                "level": {
+                    "description": "初级/中级/高级",
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "recommendedIntensity": {
+                    "description": "推荐强度",
+                    "type": "string"
+                },
+                "splitType": {
+                    "description": "全身训练/二分化/三分化/推拉腿/上下肢/四分化/五分化",
+                    "type": "string"
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "trainingDays": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.TrainingDay"
+                    }
+                },
+                "trainingDaysPerWeek": {
+                    "type": "integer"
+                }
+            }
+        },
         "domain.CreatePlanFromTemplateRequest": {
             "type": "object",
             "required": [
@@ -1656,6 +2616,10 @@ const docTemplate = `{
                 "templateId"
             ],
             "properties": {
+                "durationWeeksOverride": {
+                    "description": "可选，覆盖模板周期",
+                    "type": "integer"
+                },
                 "name": {
                     "type": "string"
                 },
@@ -1663,56 +2627,77 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "templateId": {
-                    "type": "integer"
+                    "description": "改为string类型，使用ObjectID",
+                    "type": "string"
+                },
+                "trainingDaysOverride": {
+                    "description": "可选，轻量调整日程",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.TrainingDay"
+                    }
                 }
             }
         },
         "domain.CreateTrainingRecordRequest": {
             "type": "object",
             "required": [
-                "duration",
-                "endTime",
-                "exercises",
-                "startTime",
                 "title"
             ],
             "properties": {
                 "caloriesBurned": {
+                    "description": "消耗卡路里",
                     "type": "integer"
                 },
+                "completionStatus": {
+                    "description": "完成状态(完成/部分/跳过)",
+                    "type": "string"
+                },
                 "duration": {
+                    "description": "总时长(分钟)",
                     "type": "integer"
                 },
                 "endTime": {
-                    "description": "YYYY-MM-DD HH:mm:ss",
+                    "description": "结束时间 YYYY-MM-DD HH:mm:ss",
                     "type": "string"
                 },
                 "exercises": {
+                    "description": "训练项目列表",
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/domain.Exercise"
                     }
                 },
                 "mood": {
+                    "description": "训练状态",
                     "type": "string"
                 },
                 "notes": {
+                    "description": "训练备注",
                     "type": "string"
                 },
-                "planId": {
+                "planDayId": {
+                    "description": "关联计划日ID",
                     "type": "integer"
                 },
+                "planId": {
+                    "description": "关联计划ID",
+                    "type": "string"
+                },
                 "startTime": {
-                    "description": "YYYY-MM-DD HH:mm:ss",
+                    "description": "开始时间 YYYY-MM-DD HH:mm:ss",
                     "type": "string"
                 },
                 "title": {
+                    "description": "标题(必填)",
                     "type": "string"
                 },
                 "totalSets": {
+                    "description": "总组数",
                     "type": "integer"
                 },
                 "totalWeight": {
+                    "description": "总重量(kg)",
                     "type": "number"
                 }
             }
@@ -1723,6 +2708,10 @@ const docTemplate = `{
                 "calories": {
                     "description": "当日消耗卡路里",
                     "type": "integer"
+                },
+                "completionStatus": {
+                    "description": "完成状态(用于计划统计)",
+                    "type": "string"
                 },
                 "date": {
                     "description": "日期 YYYY-MM-DD",
@@ -1769,7 +2758,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "name": {
-                    "description": "项目名称",
+                    "description": "项目名称(必填)",
                     "type": "string"
                 },
                 "notes": {
@@ -1791,6 +2780,39 @@ const docTemplate = `{
                 "weight": {
                     "description": "重量(kg)",
                     "type": "number"
+                }
+            }
+        },
+        "domain.FeedbackRequest": {
+            "type": "object",
+            "required": [
+                "content"
+            ],
+            "properties": {
+                "contactInfo": {
+                    "description": "联系方式（可选）",
+                    "type": "string"
+                },
+                "content": {
+                    "description": "反馈内容（必填，10-1000字符）",
+                    "type": "string",
+                    "maxLength": 1000,
+                    "minLength": 1
+                },
+                "type": {
+                    "description": "反馈类型：建议/问题/其他（可选，默认：建议）",
+                    "type": "string"
+                }
+            }
+        },
+        "domain.FeedbackResponse": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
                 }
             }
         },
@@ -1826,6 +2848,10 @@ const docTemplate = `{
                     "description": "计划周期(周)",
                     "type": "integer"
                 },
+                "durationWeeksOverride": {
+                    "description": "可选，覆盖模板周期",
+                    "type": "integer"
+                },
                 "endDate": {
                     "description": "结束日期 YYYY-MM-DD",
                     "type": "string"
@@ -1840,6 +2866,13 @@ const docTemplate = `{
                 "name": {
                     "type": "string"
                 },
+                "skippedDays": {
+                    "description": "跳过的训练日",
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
                 "startDate": {
                     "description": "开始日期 YYYY-MM-DD",
                     "type": "string"
@@ -1849,15 +2882,34 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "templateId": {
-                    "description": "模板ID(0表示自定义)",
+                    "description": "模板ID(null表示自定义)",
+                    "type": "string"
+                },
+                "totalCalories": {
+                    "description": "计划累计消耗卡路里",
                     "type": "integer"
                 },
                 "totalCompletedDays": {
                     "description": "累计完成天数",
                     "type": "integer"
                 },
+                "totalDuration": {
+                    "description": "计划累计时长",
+                    "type": "integer"
+                },
+                "totalWeight": {
+                    "description": "计划累计重量",
+                    "type": "number"
+                },
                 "trainingDays": {
                     "description": "训练日程",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.TrainingDay"
+                    }
+                },
+                "trainingDaysOverride": {
+                    "description": "可选，覆盖后的日程",
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/domain.TrainingDay"
@@ -1966,6 +3018,95 @@ const docTemplate = `{
                 }
             }
         },
+        "domain.PlanProgress": {
+            "type": "object",
+            "properties": {
+                "completedDays": {
+                    "type": "integer"
+                },
+                "completionRate": {
+                    "type": "integer"
+                },
+                "currentDay": {
+                    "type": "integer"
+                },
+                "currentWeek": {
+                    "type": "integer"
+                },
+                "nextTrainingDate": {
+                    "type": "string"
+                },
+                "planId": {
+                    "type": "string"
+                },
+                "skippedDays": {
+                    "type": "integer"
+                },
+                "totalCalories": {
+                    "type": "integer"
+                },
+                "totalDays": {
+                    "type": "integer"
+                },
+                "totalDuration": {
+                    "type": "integer"
+                },
+                "totalWeight": {
+                    "type": "number"
+                }
+            }
+        },
+        "domain.PlanStats": {
+            "type": "object",
+            "properties": {
+                "completedDays": {
+                    "description": "完成天数",
+                    "type": "integer"
+                },
+                "completionRate": {
+                    "description": "完成率",
+                    "type": "integer"
+                },
+                "endDate": {
+                    "description": "统计结束日期",
+                    "type": "string"
+                },
+                "period": {
+                    "description": "统计周期(week/month/whole)",
+                    "type": "string"
+                },
+                "planId": {
+                    "type": "string"
+                },
+                "skippedDays": {
+                    "description": "跳过天数",
+                    "type": "integer"
+                },
+                "startDate": {
+                    "description": "统计开始日期",
+                    "type": "string"
+                },
+                "totalCalories": {
+                    "description": "累计消耗卡路里",
+                    "type": "integer"
+                },
+                "totalDuration": {
+                    "description": "累计训练时长",
+                    "type": "integer"
+                },
+                "totalWeight": {
+                    "description": "累计重量",
+                    "type": "number"
+                },
+                "trend": {
+                    "description": "趋势数据",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.DailyStats"
+                    }
+                }
+            }
+        },
         "domain.PlanTemplate": {
             "type": "object",
             "properties": {
@@ -1983,6 +3124,10 @@ const docTemplate = `{
                     "description": "计划周期(周)",
                     "type": "integer"
                 },
+                "equipment": {
+                    "description": "主要器械(徒手/哑铃/器械/混合)",
+                    "type": "string"
+                },
                 "goal": {
                     "description": "训练目标",
                     "type": "string"
@@ -1994,11 +3139,23 @@ const docTemplate = `{
                     "description": "封面图片URL",
                     "type": "string"
                 },
+                "isOfficial": {
+                    "description": "是否为官方模板",
+                    "type": "boolean"
+                },
                 "level": {
                     "description": "难度等级(初级/中级/高级)",
                     "type": "string"
                 },
                 "name": {
+                    "type": "string"
+                },
+                "recommendedIntensity": {
+                    "description": "推荐强度(如RPE 7-8)",
+                    "type": "string"
+                },
+                "splitType": {
+                    "description": "分化方式(二分化/三分化/推拉腿/上下肢/四分化/五分化)",
                     "type": "string"
                 },
                 "tags": {
@@ -2018,6 +3175,13 @@ const docTemplate = `{
                 "trainingDaysPerWeek": {
                     "description": "每周训练天数",
                     "type": "integer"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "userId": {
+                    "description": "用户ID(个人模板才有)",
+                    "type": "string"
                 }
             }
         },
@@ -2105,6 +3269,20 @@ const docTemplate = `{
                 }
             }
         },
+        "domain.SkipDayRequest": {
+            "type": "object",
+            "required": [
+                "dayNumber"
+            ],
+            "properties": {
+                "dayNumber": {
+                    "type": "integer"
+                },
+                "reason": {
+                    "type": "string"
+                }
+            }
+        },
         "domain.SuccessResponse": {
             "type": "object",
             "properties": {
@@ -2116,6 +3294,10 @@ const docTemplate = `{
         "domain.TrainingDay": {
             "type": "object",
             "properties": {
+                "cooldownTips": {
+                    "description": "放松建议",
+                    "type": "string"
+                },
                 "dayName": {
                     "description": "训练日名称",
                     "type": "string"
@@ -2131,12 +3313,20 @@ const docTemplate = `{
                         "$ref": "#/definitions/domain.Exercise"
                     }
                 },
+                "intensityHint": {
+                    "description": "强度提示(如百分比/RPE)",
+                    "type": "string"
+                },
                 "isRestDay": {
                     "description": "是否为休息日",
                     "type": "boolean"
                 },
                 "notes": {
                     "description": "当日备注",
+                    "type": "string"
+                },
+                "warmupTips": {
+                    "description": "热身建议",
                     "type": "string"
                 }
             }
@@ -2147,6 +3337,10 @@ const docTemplate = `{
                 "caloriesBurned": {
                     "description": "消耗卡路里",
                     "type": "integer"
+                },
+                "completionStatus": {
+                    "description": "完成状态(完成/部分/跳过)",
+                    "type": "string"
                 },
                 "createdAt": {
                     "type": "string"
@@ -2177,15 +3371,20 @@ const docTemplate = `{
                     "description": "训练备注",
                     "type": "string"
                 },
-                "planId": {
-                    "description": "关联计划ID(0表示无计划)",
+                "planDayId": {
+                    "description": "关联计划日ID",
                     "type": "integer"
+                },
+                "planId": {
+                    "description": "关联计划ID",
+                    "type": "string"
                 },
                 "startTime": {
                     "description": "开始时间 YYYY-MM-DD HH:mm:ss",
                     "type": "string"
                 },
                 "title": {
+                    "description": "标题(必填)",
                     "type": "string"
                 },
                 "totalSets": {
@@ -2278,45 +3477,109 @@ const docTemplate = `{
                 }
             }
         },
+        "domain.UpdateTemplateRequest": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "durationWeeks": {
+                    "type": "integer"
+                },
+                "equipment": {
+                    "type": "string"
+                },
+                "goal": {
+                    "type": "string"
+                },
+                "imageUrl": {
+                    "type": "string"
+                },
+                "level": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "recommendedIntensity": {
+                    "type": "string"
+                },
+                "splitType": {
+                    "type": "string"
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "trainingDays": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.TrainingDay"
+                    }
+                },
+                "trainingDaysPerWeek": {
+                    "type": "integer"
+                }
+            }
+        },
         "domain.UpdateTrainingRecordRequest": {
             "type": "object",
             "properties": {
                 "caloriesBurned": {
+                    "description": "消耗卡路里",
                     "type": "integer"
                 },
+                "completionStatus": {
+                    "description": "完成状态",
+                    "type": "string"
+                },
                 "duration": {
+                    "description": "总时长(分钟)",
                     "type": "integer"
                 },
                 "endTime": {
-                    "description": "YYYY-MM-DD HH:mm:ss",
+                    "description": "结束时间 YYYY-MM-DD HH:mm:ss",
                     "type": "string"
                 },
                 "exercises": {
+                    "description": "训练项目列表",
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/domain.Exercise"
                     }
                 },
                 "mood": {
+                    "description": "训练状态",
                     "type": "string"
                 },
                 "notes": {
+                    "description": "训练备注",
                     "type": "string"
                 },
-                "planId": {
+                "planDayId": {
+                    "description": "关联计划日ID",
                     "type": "integer"
                 },
+                "planId": {
+                    "description": "关联计划ID",
+                    "type": "string"
+                },
                 "startTime": {
-                    "description": "YYYY-MM-DD HH:mm:ss",
+                    "description": "开始时间 YYYY-MM-DD HH:mm:ss",
                     "type": "string"
                 },
                 "title": {
+                    "description": "标题",
                     "type": "string"
                 },
                 "totalSets": {
+                    "description": "总组数",
                     "type": "integer"
                 },
                 "totalWeight": {
+                    "description": "总重量(kg)",
                     "type": "number"
                 }
             }

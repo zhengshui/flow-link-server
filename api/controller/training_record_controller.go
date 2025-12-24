@@ -117,7 +117,7 @@ func (tc *TrainingRecordController) GetByID(c *gin.Context) {
 // @Param        pageSize query int false "每页数量" default(10)
 // @Param        startDate query string false "开始日期" format(date)
 // @Param        endDate query string false "结束日期" format(date)
-// @Param        planId query int false "计划ID"
+// @Param        planId query string false "计划ID"
 // @Success      200 {object} domain.SuccessResponse{data=domain.PaginatedData} "获取成功"
 // @Failure      401 {object} domain.ErrorResponse "未授权访问"
 // @Failure      500 {object} domain.ErrorResponse "服务器错误"
@@ -144,7 +144,7 @@ func (tc *TrainingRecordController) GetList(c *gin.Context) {
 	endDate := c.Query("endDate")
 
 	// 解析计划ID参数
-	planID, _ := strconv.Atoi(c.DefaultQuery("planId", "0"))
+	planID := c.DefaultQuery("planId", "")
 
 	records, total, err := tc.TrainingRecordUsecase.GetList(c, userID, page, pageSize, startDate, endDate, planID)
 	if err != nil {

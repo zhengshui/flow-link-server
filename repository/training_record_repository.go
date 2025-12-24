@@ -44,7 +44,7 @@ func (tr *trainingRecordRepository) GetByID(c context.Context, id string) (domai
 	return record, err
 }
 
-func (tr *trainingRecordRepository) GetByUserID(c context.Context, userID string, page, pageSize int, startDate, endDate string, planID int) ([]domain.TrainingRecord, int64, error) {
+func (tr *trainingRecordRepository) GetByUserID(c context.Context, userID string, page, pageSize int, startDate, endDate string, planID string) ([]domain.TrainingRecord, int64, error) {
 	collection := tr.database.Collection(tr.collection)
 
 	userIDHex, err := primitive.ObjectIDFromHex(userID)
@@ -70,7 +70,7 @@ func (tr *trainingRecordRepository) GetByUserID(c context.Context, userID string
 		}
 	}
 
-	if planID > 0 {
+	if planID != "" {
 		filter["planId"] = planID
 	}
 

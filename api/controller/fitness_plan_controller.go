@@ -278,7 +278,7 @@ func (fc *FitnessPlanController) CompleteDay(c *gin.Context) {
 		return
 	}
 
-	result, err := fc.FitnessPlanUsecase.CompleteDay(c, userID, planID, request.DayNumber)
+	result, err := fc.FitnessPlanUsecase.CompleteDay(c, userID, planID, request.DayNumber, request.RecordID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, domain.NewErrorResponse(500, "完成训练日失败"))
 		return

@@ -37,13 +37,10 @@ func (tu *trainingRecordUsecase) Create(c context.Context, userID string, reques
 		exercises = []domain.Exercise{}
 	}
 
-	// Convert planID string to ObjectID if provided
-	var planObjectID *primitive.ObjectID
-	if request.PlanID != nil && *request.PlanID != "" {
-		pid, err := primitive.ObjectIDFromHex(*request.PlanID)
-		if err == nil {
-			planObjectID = &pid
-		}
+	// Use PlanID directly if provided
+	var planID string
+	if request.PlanID != nil {
+		planID = *request.PlanID
 	}
 
 	now := time.Now()
@@ -60,7 +57,7 @@ func (tu *trainingRecordUsecase) Create(c context.Context, userID string, reques
 		CaloriesBurned:   request.CaloriesBurned,
 		Notes:            request.Notes,
 		Mood:             request.Mood,
-		PlanID:           planObjectID,
+		PlanID:           planID,
 		PlanDayID:        request.PlanDayID,
 		CompletionStatus: request.CompletionStatus,
 		CreatedAt:        primitive.NewDateTimeFromTime(now),
@@ -95,7 +92,7 @@ func (tu *trainingRecordUsecase) GetByID(c context.Context, userID, recordID str
 	return record, nil
 }
 
-func (tu *trainingRecordUsecase) GetList(c context.Context, userID string, page, pageSize int, startDate, endDate string, planID int) ([]domain.TrainingRecord, int64, error) {
+func (tu *trainingRecordUsecase) GetList(c context.Context, userID string, page, pageSize int, startDate, endDate string, planID string) ([]domain.TrainingRecord, int64, error) {
 	ctx, cancel := context.WithTimeout(c, tu.contextTimeout)
 	defer cancel()
 
@@ -157,11 +154,8 @@ func (tu *trainingRecordUsecase) Update(c context.Context, userID, recordID stri
 	if request.Mood != nil {
 		record.Mood = request.Mood
 	}
-	if request.PlanID != nil && *request.PlanID != "" {
-		pid, err := primitive.ObjectIDFromHex(*request.PlanID)
-		if err == nil {
-			record.PlanID = &pid
-		}
+	if request.PlanID != nil {
+		record.PlanID = *request.PlanID
 	}
 	if request.PlanDayID != nil {
 		record.PlanDayID = request.PlanDayID

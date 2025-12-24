@@ -86,8 +86,8 @@ type CreateCustomPlanRequest struct {
 
 // CompleteDayRequest 标记训练日完成请求
 type CompleteDayRequest struct {
-	DayNumber int `json:"dayNumber" binding:"required"`
-	RecordID  int `json:"recordId"`
+	DayNumber int    `json:"dayNumber" binding:"required"`
+	RecordID  string `json:"recordId"`
 }
 
 // SkipDayRequest 跳过计划日请求
@@ -130,7 +130,7 @@ type FitnessPlanUsecase interface {
 	GetByID(c context.Context, userID, planID string) (FitnessPlan, error)
 	GetList(c context.Context, userID string, status string, page, pageSize int) ([]FitnessPlan, int64, error)
 	UpdateStatus(c context.Context, userID, planID string, status string) error
-	CompleteDay(c context.Context, userID, planID string, dayNumber int) (map[string]interface{}, error)
+	CompleteDay(c context.Context, userID, planID string, dayNumber int, recordID string) (map[string]interface{}, error)
 	Delete(c context.Context, userID, planID string) error
 	GetProgress(c context.Context, userID, planID string) (PlanProgress, error)
 	SkipDay(c context.Context, userID, planID string, dayNumber int, reason string) (map[string]interface{}, error)

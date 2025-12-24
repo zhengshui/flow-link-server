@@ -47,7 +47,7 @@ func (su *statsUsecase) GetTrainingStats(c context.Context, userID string, perio
 	}
 
 	// Get training records for the period
-	records, _, err := su.trainingRecordRepository.GetByUserID(ctx, userID, 1, 1000, startDate, endDate, 0)
+	records, _, err := su.trainingRecordRepository.GetByUserID(ctx, userID, 1, 1000, startDate, endDate, "")
 	if err != nil {
 		return domain.TrainingStats{}, err
 	}
@@ -202,7 +202,7 @@ func (su *statsUsecase) GetMuscleGroupStats(c context.Context, userID string, pe
 	}
 
 	// Get training records for the period
-	records, _, err := su.trainingRecordRepository.GetByUserID(ctx, userID, 1, 1000, startDate, endDate, 0)
+	records, _, err := su.trainingRecordRepository.GetByUserID(ctx, userID, 1, 1000, startDate, endDate, "")
 	if err != nil {
 		return nil, err
 	}
@@ -263,7 +263,7 @@ func (su *statsUsecase) GetPersonalRecords(c context.Context, userID string) ([]
 	defer cancel()
 
 	// Get all training records for the user
-	records, _, err := su.trainingRecordRepository.GetByUserID(ctx, userID, 1, 10000, "", "", 0)
+	records, _, err := su.trainingRecordRepository.GetByUserID(ctx, userID, 1, 10000, "", "", "")
 	if err != nil {
 		return nil, err
 	}
@@ -334,7 +334,7 @@ func (su *statsUsecase) GetCalendar(c context.Context, userID string, year, mont
 	endDate := lastDay.Format("2006-01-02")
 
 	// Get training records for the month
-	records, _, err := su.trainingRecordRepository.GetByUserID(ctx, userID, 1, 1000, startDate, endDate, 0)
+	records, _, err := su.trainingRecordRepository.GetByUserID(ctx, userID, 1, 1000, startDate, endDate, "")
 	if err != nil {
 		return nil, err
 	}

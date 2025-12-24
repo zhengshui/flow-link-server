@@ -242,7 +242,7 @@ func (fu *fitnessPlanUsecase) UpdateStatus(c context.Context, userID, planID str
 	return fu.fitnessPlanRepository.UpdateStatus(ctx, planID, status)
 }
 
-func (fu *fitnessPlanUsecase) CompleteDay(c context.Context, userID, planID string, dayNumber int) (map[string]interface{}, error) {
+func (fu *fitnessPlanUsecase) CompleteDay(c context.Context, userID, planID string, dayNumber int, recordID string) (map[string]interface{}, error) {
 	ctx, cancel := context.WithTimeout(c, fu.contextTimeout)
 	defer cancel()
 

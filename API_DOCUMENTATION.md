@@ -309,7 +309,8 @@ Authorization: Bearer {access_token}
   "caloriesBurned": 450,             // 消耗卡路里
   "notes": "string",                 // 训练备注
   "mood": "string",                  // 训练状态（优秀/良好/一般/疲劳）
-  "planId": 1                        // 关联计划ID（可选，0表示无计划）
+  "planId": "string",                // 关联计划ID（可选）
+  "planDayId": 1                     // 关联计划日ID（可选）
 }
 ```
 
@@ -319,7 +320,7 @@ Authorization: Bearer {access_token}
   "code": 200,
   "message": "创建成功",
   "data": {
-    "id": 1,
+    "id": "60d5f5072f8fb81a008b4567",
     "createdAt": "2025-11-01 10:30:00"
   }
 }
@@ -625,13 +626,13 @@ Authorization: Bearer {access_token}
 **需要认证**: 是
 
 **路径参数**:
-- `planId`: 计划ID
+- `planId`: 计划ID (string)
 
 **请求参数**:
 ```json
 {
   "dayNumber": 1,            // 第几天
-  "recordId": 1              // 关联的训练记录ID（可选）
+  "recordId": "string"       // 关联的训练记录ID（可选）
 }
 ```
 
@@ -1227,7 +1228,7 @@ Authorization: Bearer {access_token}
 
 ```typescript
 {
-  id: number                      // 训练记录ID
+  id: string                      // 训练记录ID (MongoDB ObjectId)
   userId: number                  // 用户ID
   title: string                   // 训练标题
   date: string                    // 训练日期 (YYYY-MM-DD) - 从 startTime 提取
@@ -1240,7 +1241,7 @@ Authorization: Bearer {access_token}
   caloriesBurned: number          // 消耗卡路里
   notes: string                   // 训练备注
   mood: string                    // 训练状态（优秀/良好/一般/疲劳）
-  planId: number                  // 关联计划ID（0表示无计划）
+  planId: string                  // 关联计划ID (0或空表示无计划)
   planDayId: number               // 关联计划日ID（可选）
   completionStatus: string        // 完成状态（完成/部分/跳过）
   createdAt: string               // 创建时间
@@ -1268,7 +1269,7 @@ Authorization: Bearer {access_token}
 
 ```typescript
 {
-  id: number                      // 计划ID
+  id: string                      // 计划ID (MongoDB ObjectId)
   userId: number                  // 用户ID
   templateId: number              // 模板ID（0表示自定义）
   name: string                    // 计划名称
@@ -1358,7 +1359,7 @@ Authorization: Bearer {access_token}
 ### PlanStats (计划统计)
 ```typescript
 {
-  planId: number                  // 计划ID
+  planId: string                  // 计划ID
   planName: string                // 计划名称
   completionRate: number          // 完成率
   completedDays: number           // 完成天数
@@ -1429,6 +1430,16 @@ Authorization: Bearer {access_token}
 ---
 
 ## 版本历史
+
+### v1.3.1 (2025-12-24)
+
+**优化** - 计划与训练记录关联兼容性
+
+1. 完善训练记录与健身计划的深度关联：新增 `planDayId` 字段以支持记录具体的计划训练日。
+2. 兼容 MongoDB ObjectId：将 `recordId`、`planId` 等 ID 字段统一明确为 `string` 类型。
+3. 优化“标记训练日完成”接口，支持传入字符串类型的 `recordId`。
+
+---
 
 ### v1.3.0 (2025-12-18)
 
