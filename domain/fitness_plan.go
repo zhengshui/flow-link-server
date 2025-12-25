@@ -60,6 +60,7 @@ type FitnessPlanRepository interface {
 	UpdateStatus(c context.Context, id string, status string) error
 	Delete(c context.Context, id string) error
 	CompletePlanDay(c context.Context, id string, dayNumber int) error
+	UncompletePlanDay(c context.Context, id string, dayNumber int) error
 	SkipPlanDay(c context.Context, id string, dayNumber int) error
 	UpdateTrainingDay(c context.Context, id string, dayNumber int, exercises []Exercise, notes string) error
 }
@@ -88,6 +89,11 @@ type CreateCustomPlanRequest struct {
 type CompleteDayRequest struct {
 	DayNumber int    `json:"dayNumber" binding:"required"`
 	RecordID  string `json:"recordId"`
+}
+
+// UncompleteDayRequest 取消完成训练日请求
+type UncompleteDayRequest struct {
+	DayNumber int `json:"dayNumber" binding:"required"`
 }
 
 // SkipDayRequest 跳过计划日请求
@@ -131,6 +137,7 @@ type FitnessPlanUsecase interface {
 	GetList(c context.Context, userID string, status string, page, pageSize int) ([]FitnessPlan, int64, error)
 	UpdateStatus(c context.Context, userID, planID string, status string) error
 	CompleteDay(c context.Context, userID, planID string, dayNumber int, recordID string) (map[string]interface{}, error)
+	UncompleteDay(c context.Context, userID, planID string, dayNumber int) (map[string]interface{}, error)
 	Delete(c context.Context, userID, planID string) error
 	GetProgress(c context.Context, userID, planID string) (PlanProgress, error)
 	SkipDay(c context.Context, userID, planID string, dayNumber int, reason string) (map[string]interface{}, error)

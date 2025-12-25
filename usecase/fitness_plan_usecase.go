@@ -294,6 +294,51 @@ func (fu *fitnessPlanUsecase) CompleteDay(c context.Context, userID, planID stri
 	}, nil
 }
 
+func (fu *fitnessPlanUsecase) UncompleteDay(c context.Context, userID, planID string, dayNumber int) (map[string]interface{}, error) {
+	ctx, cancel := context.WithTimeout(c, fu.contextTimeout)
+	defer cancel()
+
+	// Get existing plan and validate ownership
+	plan, err := fu.fitnessPlanRepository.GetByID(ctx, planID)
+	if err != nil {
+		return nil, err
+	}
+
+	if plan.UserID.Hex() != userID {
+		return nil, errors.New("unauthorized access to fitness plan")
+	}
+
+	// Check if day is actually completed
+	isCompleted := false
+	for _, completedDay := range plan.CompletedDays {
+		if completedDay == dayNumber {
+			isCompleted = true
+			break
+		}
+	}
+
+	if !isCompleted {
+		return nil, errors.New("day is not completed")
+	}
+
+	// Uncomplete the day
+	err = fu.fitnessPlanRepository.UncompletePlanDay(ctx, planID, dayNumber)
+	if err != nil {
+		return nil, err
+	}
+
+	// Get updated plan for response
+	updatedPlan, err := fu.fitnessPlanRepository.GetByID(ctx, planID)
+	if err != nil {
+		return nil, err
+	}
+
+	return map[string]interface{}{
+		"completionRate":     updatedPlan.CompletionRate,
+		"totalCompletedDays": updatedPlan.TotalCompletedDays,
+	}, nil
+}
+
 func (fu *fitnessPlanUsecase) Delete(c context.Context, userID, planID string) error {
 	ctx, cancel := context.WithTimeout(c, fu.contextTimeout)
 	defer cancel()

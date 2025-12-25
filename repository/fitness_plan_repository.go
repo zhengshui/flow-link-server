@@ -200,6 +200,56 @@ func (fp *fitnessPlanRepository) CompletePlanDay(c context.Context, id string, d
 	return err
 }
 
+func (fp *fitnessPlanRepository) UncompletePlanDay(c context.Context, id string, dayNumber int) error {
+	collection := fp.database.Collection(fp.collection)
+
+	idHex, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return err
+	}
+
+	// Remove dayNumber from completedDays array
+	update := bson.M{
+		"$pull": bson.M{
+			"completedDays": dayNumber,
+		},
+		"$set": bson.M{
+			"updatedAt": primitive.NewDateTimeFromTime(time.Now()),
+		},
+	}
+
+	_, err = collection.UpdateOne(c, bson.M{"_id": idHex}, update)
+	if err != nil {
+		return err
+	}
+
+	// Recalculate stats
+	var plan domain.FitnessPlan
+	err = collection.FindOne(c, bson.M{"_id": idHex}).Decode(&plan)
+	if err != nil {
+		return err
+	}
+
+	totalDays := plan.DurationWeeks * plan.TrainingDaysPerWeek
+	totalCompletedDays := len(plan.CompletedDays)
+	completionRate := 0
+	if totalDays > 0 {
+		completionRate = (totalCompletedDays * 100) / totalDays
+	}
+
+	// Update stats
+	update = bson.M{
+		"$set": bson.M{
+			"totalCompletedDays": totalCompletedDays,
+			"completionRate":     completionRate,
+			"updatedAt":          primitive.NewDateTimeFromTime(time.Now()),
+		},
+	}
+
+	_, err = collection.UpdateOne(c, bson.M{"_id": idHex}, update)
+	return err
+}
+
 func (fp *fitnessPlanRepository) SkipPlanDay(c context.Context, id string, dayNumber int) error {
 	collection := fp.database.Collection(fp.collection)
 

@@ -650,7 +650,37 @@ Authorization: Bearer {access_token}
 
 ---
 
-### 6. 更新计划状态
+### 6. 取消完成训练日
+
+**接口**: `POST /api/plans/{planId}/uncomplete-day`
+
+**需要认证**: 是
+
+**路径参数**:
+- `planId`: 计划ID (string)
+
+**请求参数**:
+```json
+{
+  "dayNumber": 1             // 第几天
+}
+```
+
+**响应示例**:
+```json
+{
+  "code": 200,
+  "message": "取消完成成功",
+  "data": {
+    "totalCompletedDays": 10,
+    "completionRate": 27
+  }
+}
+```
+
+---
+
+### 7. 更新计划状态
 
 **接口**: `PUT /api/plans/{planId}/status`
 
@@ -677,7 +707,7 @@ Authorization: Bearer {access_token}
 
 ---
 
-### 7. 删除计划
+### 8. 删除计划
 
 **接口**: `DELETE /api/plans/{planId}`
 
@@ -1262,6 +1292,18 @@ Authorization: Bearer {access_token}
   muscleGroup: string             // 目标肌群
   notes: string                   // 备注
   duration: number                // 训练时长（分钟）
+  setsData?: SetDetail[]          // 可选，详细组数据
+}
+
+### SetDetail (组详情)
+
+```typescript
+{
+  setType: string                 // 组类型：热身/正式/放松
+  weight: number                  // 重量（kg）
+  reps: number                    // 次数
+  isCompleted: boolean            // 是否完成
+  note: string                    // 备注
 }
 ```
 
@@ -1438,6 +1480,7 @@ Authorization: Bearer {access_token}
 1. 完善训练记录与健身计划的深度关联：新增 `planDayId` 字段以支持记录具体的计划训练日。
 2. 兼容 MongoDB ObjectId：将 `recordId`、`planId` 等 ID 字段统一明确为 `string` 类型。
 3. 优化“标记训练日完成”接口，支持传入字符串类型的 `recordId`。
+4. 新增“取消完成训练日”接口，支持在删除训练记录后回滚计划进度。
 
 ---
 

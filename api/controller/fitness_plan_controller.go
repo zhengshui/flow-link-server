@@ -287,6 +287,55 @@ func (fc *FitnessPlanController) CompleteDay(c *gin.Context) {
 	c.JSON(http.StatusOK, domain.NewSuccessResponse(result))
 }
 
+// UncompleteDay godoc
+// @Summary      取消完成训练日
+// @Description  取消标记健身计划中的某一天为已完成
+// @Tags         健身计划
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        planId path string true "计划ID"
+// @Param        request body domain.UncompleteDayRequest true "日期信息"
+// @Success      200 {object} domain.SuccessResponse{data=map[string]interface{}} "取消完成成功"
+// @Failure      400 {object} domain.ErrorResponse "请求参数错误"
+// @Failure      401 {object} domain.ErrorResponse "未授权访问"
+// @Failure      500 {object} domain.ErrorResponse "服务器错误"
+// @Router       /api/plans/{planId}/uncomplete-day [post]
+func (fc *FitnessPlanController) UncompleteDay(c *gin.Context) {
+	userIDValue, exists := c.Get("x-user-id")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, domain.NewErrorResponse(401, "未授权访问"))
+		return
+	}
+
+	userID, ok := userIDValue.(string)
+	if !ok {
+		c.JSON(http.StatusUnauthorized, domain.NewErrorResponse(401, "用户ID格式错误"))
+		return
+	}
+
+	planID := c.Param("planId")
+	if planID == "" {
+		c.JSON(http.StatusBadRequest, domain.NewErrorResponse(400, "计划ID不能为空"))
+		return
+	}
+
+	var request domain.UncompleteDayRequest
+	err := c.ShouldBindJSON(&request)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, domain.NewErrorResponse(400, err.Error()))
+		return
+	}
+
+	result, err := fc.FitnessPlanUsecase.UncompleteDay(c, userID, planID, request.DayNumber)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, domain.NewErrorResponse(500, err.Error()))
+		return
+	}
+
+	c.JSON(http.StatusOK, domain.NewSuccessResponse(result))
+}
+
 // Delete godoc
 // @Summary      删除健身计划
 // @Description  删除指定ID的健身计划

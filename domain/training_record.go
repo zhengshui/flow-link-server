@@ -10,17 +10,27 @@ const (
 	CollectionTrainingRecord = "training_records"
 )
 
+// SetDetail 组详情
+type SetDetail struct {
+	SetType     string   `bson:"setType" json:"setType"`         // 组类型：热身/正式/放松
+	Weight      float64  `bson:"weight" json:"weight"`           // 重量(kg)
+	Reps        int      `bson:"reps" json:"reps"`               // 次数
+	IsCompleted bool     `bson:"isCompleted" json:"isCompleted"` // 是否完成
+	Note        string   `bson:"note,omitempty" json:"note,omitempty"`
+}
+
 // Exercise 训练项目
 type Exercise struct {
-	ID          int      `bson:"id" json:"id"`
-	Name        string   `bson:"name" json:"name"`                                   // 项目名称(必填)
-	Sets        *int     `bson:"sets,omitempty" json:"sets,omitempty"`               // 组数
-	Reps        *int     `bson:"reps,omitempty" json:"reps,omitempty"`               // 次数
-	Weight      *float64 `bson:"weight,omitempty" json:"weight,omitempty"`           // 重量(kg)
-	RestTime    *int     `bson:"restTime,omitempty" json:"restTime,omitempty"`       // 休息时间(秒)
-	MuscleGroup *string  `bson:"muscleGroup,omitempty" json:"muscleGroup,omitempty"` // 目标肌群
-	Notes       *string  `bson:"notes,omitempty" json:"notes,omitempty"`             // 备注
-	Duration    *int     `bson:"duration,omitempty" json:"duration,omitempty"`       // 训练时长(分钟)
+	ID          int          `bson:"id" json:"id"`
+	Name        string       `bson:"name" json:"name"`                                   // 项目名称(必填)
+	Sets        *int         `bson:"sets,omitempty" json:"sets,omitempty"`               // 组数
+	Reps        *int         `bson:"reps,omitempty" json:"reps,omitempty"`               // 次数
+	Weight      *float64     `bson:"weight,omitempty" json:"weight,omitempty"`           // 重量(kg)
+	RestTime    *int         `bson:"restTime,omitempty" json:"restTime,omitempty"`       // 休息时间(秒)
+	MuscleGroup *string      `bson:"muscleGroup,omitempty" json:"muscleGroup,omitempty"` // 目标肌群
+	Notes       *string      `bson:"notes,omitempty" json:"notes,omitempty"`             // 备注
+	Duration    *int         `bson:"duration,omitempty" json:"duration,omitempty"`       // 训练时长(分钟)
+	SetsData    []SetDetail  `bson:"setsData,omitempty" json:"setsData,omitempty"`       // 详细组数据
 }
 
 // TrainingRecord 训练记录
